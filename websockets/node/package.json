@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "serverless-disable-functions": "^0.1.0"
+  }
+}

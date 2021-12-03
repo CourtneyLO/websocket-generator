@@ -1,0 +1,71 @@
+service: websocket-generator
+
+frameworkVersion: '2 || 3'
+
+plugins:
+  - serverless-disable-functions
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage}
+  region: ${self:custom.region}
+  stackName: ${self:custom.projectName}-${self:provider.stage}-websocket-api
+  websocketsApiName: ${self:custom.projectName}-${self:provider.stage}-websocket-api
+  apiGateway:
+    description: ${self:custom.projectName} websocket API
+  environment:
+    DYNAMODB_WEBSOCKET_CONNECTIONS_TABLE_NAME: ${self:custom.terraformOutputs}.DynamoDBTableNameWebsocketConnections
+    PROJECT_NAME: ${self:custom.projectName}
+    ENVIRONMENT: ${self:provider.stage}
+  logs:
+    websocket: true
+
+custom:
+  region: ${file(./config.js):awsRegion}
+  projectName: ${file(./config.js):projectName}
+  awsAccountId: ${file(./config.js):${self:provider.stage}.awsAccountId}
+  authorizationKey: ${file(./config.js):authorizationKey}
+  authorizationSecretName: ${self:custom.projectName}-${self:provider.stage}-websocket-authorization-key
+  terraformOutputs: ${self:custom.projectName}-${self:provider.stage}-terraform-outputs
+  dynamodbTableName: ${self:custom.projectName}-${self:provider.stage}-websocket-manager
+
+functions:
+  authorizer:
+    name: ${self:custom.projectName}-${self:provider.stage}-Authorizer
+    role: ${cf:${self:custom.terraformOutputs}.IAMRoleArnAuthorizerLambda}
+    handler: src/authorizer.handler
+    environment:
+      AUTHORIZATION_SECRET_NAME: ${self:custom.authorizationSecretName}
+      AUTHORIZATION_KEY: ${self:custom.authorizationKey}
+      AWS_REGION_VALUE: ${self:custom.region}
+  connect:
+    name: ${self:custom.projectName}-${self:provider.stage}-Connect
+    role: ${cf:${self:custom.terraformOutputs}.IAMRoleArnConnectLambda}
+    handler: src/connect.handler
+    events:
+      - websocket:
+          route: $connect
+          authorizer:
+            name: authorizer
+            identitySource: 'route.request.querystring.${self:custom.authorizationKey}'
+    environment:
+      WEBSOCKET_TABLE_NAME: ${self:custom.dynamodbTableName}
+  disconnect:
+    name: ${self:custom.projectName}-${self:provider.stage}-Disconnect
+    role: ${cf:${self:custom.terraformOutputs}.IAMRoleArnDisconnectLambda}
+    handler: src/disconnect.handler
+    events:
+      - websocket:
+          route: $disconnect
+    environment:
+      WEBSOCKET_TABLE_NAME: ${self:custom.dynamodbTableName}
+  default:
+    name: ${self:custom.projectName}-${self:provider.stage}-Default
+    role: ${cf:${self:custom.terraformOutputs}.IAMRoleArnDefaultLambda}
+    handler: src/default.handler
+    events:
+      - websocket:
+          route: $default
+          routeResponseSelectionExpression: $default
