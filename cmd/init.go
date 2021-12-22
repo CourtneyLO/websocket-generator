@@ -7,6 +7,7 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/spf13/cobra"
+	"github.com/fatih/color"
 )
 
 const DEFAULT_ENVIRONMENT = "development"
@@ -45,6 +46,9 @@ var initCmd = &cobra.Command{
 
 		WriteFile(configFilePath, combinedConfig)
 
+		informationHeading := color.New(color.FgRed, color.Bold).Add(color.Underline)
+		informationDetails := color.New(color.FgBlue, color.Bold)
+
 		sourceFileInfrastructure := "infrastructure/" + strings.ToLower(choosenIaC)
 
 		infrastructureFilePath := webSocketConfig.InfrastructureFilePath
@@ -67,16 +71,8 @@ var initCmd = &cobra.Command{
 
 		if mainFileExists {
 			fmt.Println("")
-			fmt.Println("It appears you already have a main.tf file. Please add following code to your existing file:")
-			fmt.Println(`
-module "websocket" {
-  source      = "./modules/websocket"
-  ENVIRONMENT = var.ENVIRONMENT
-  PROJECT_NAME = var.PROJECT_NAME
-  AWS_REGION = var.AWS_REGION
-  AWS_ACCOUNT_ID = var.AWS_ACCOUNT_ID
-  WEBSOCKET_AUTHORIZATION_SECRET_VALUE = var.WEBSOCKET_AUTHORIZATION_SECRET_VALUE
-}`)
+			informationHeading.Println("It appears you already have a main.tf file. Please add following code to your existing file:")
+			informationDetails.Println(WEBSOCKET_MODULE)
 		} else {
 			sourceFileInfrastructureError := CopyAndMoveFile(sourceFileInfrastructure + "/main.tf", infrastructureFilePath + "/main.tf")
 			if sourceFileInfrastructureError != nil {
@@ -90,28 +86,9 @@ module "websocket" {
 
 		if variableTypeFileExists {
 			fmt.Println("")
-			fmt.Println("It appears you already have a variables file. Please add following code to your existing file:")
-			fmt.Println(`
-variable "ENVIRONMENT" {
-	type = string
-}
-
-variable "PROJECT_NAME" {
-	type = string
-}
-
-variable "AWS_REGION" {
-	type = string
-}
-
-variable "AWS_ACCOUNT_ID" {
-	type = string
-}
-
-variable "WEBSOCKET_AUTHORIZATION_SECRET_VALUE" {
-	type = string
-	sensitive = true
-}`)
+			informationHeading.Println("It appears you already have a variables file. Please add following code to your existing file:")
+			informationDetails.Println(VARIABLES)
+			fmt.Println("")
 		} else {
 			sourceFileInfrastructureError := CopyAndMoveFile(sourceFileInfrastructure + "/variables.tf", infrastructureFilePath + "/variables.tf")
 			if sourceFileInfrastructureError != nil {
