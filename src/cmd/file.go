@@ -9,6 +9,8 @@ import (
 	"path"
 	"errors"
 	"strings"
+
+	"github.com/iancoleman/strcase"
 )
 func checkIfFileExists(filePath string) bool {
 	_, err := os.Stat(filePath)
@@ -24,19 +26,7 @@ func checkIfFileExists(filePath string) bool {
 	return false
 }
 
-func getFilePath(args []string) string {
-	if len(args) < 1 {
-		fmt.Println("ERROR: Project Name is required to run this command")
-		return ""
-	}
-	projectName := args[0]
-
-	filePath := WEBSOCKET_CONFIG_FILE_PATH + projectName + ".json"
-
-	return filePath
-}
-
-func ReadFile(fileName string) *WebSocketConfig {
+func ReadFile(fileName string) map[string]interface{} {
 	jsonFile, errorJsonFile := os.Open(fileName)
 	if errorJsonFile != nil {
 		fmt.Println("Open command in ReadFile failed with the following error", errorJsonFile)
@@ -45,21 +35,33 @@ func ReadFile(fileName string) *WebSocketConfig {
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
-	var webSocketConfig WebSocketConfig
-	json.Unmarshal(byteValue, &webSocketConfig)
+	var result map[string]interface{}
+	json.Unmarshal(byteValue, &result)
 
-	return &webSocketConfig
+	return result
 }
 
-func WriteFile(fileName string, data map[string]interface{})  {
-	file, _ := json.MarshalIndent(data, "", "  ")
+func WriteJsonFile(fileName string, data map[string]interface{})  {
+	converted := make(map[string]interface{}, len(data))
+	for key, value := range data {
+		key = strcase.ToLowerCamel(key)
+		converted[key] = value
+	}
+
+	file, _ := json.MarshalIndent(converted, "", "  ")
 	error := ioutil.WriteFile(fileName, file, 0644)
 
 	if error != nil {
 		fmt.Println("Write to file failed Error:", error)
 	}
+}
 
-	return
+func WriteFile(filePath string, data []byte) {
+	error := ioutil.WriteFile(filePath, data, 0644)
+
+	if error != nil {
+		fmt.Println("Write to file failed Error:", error)
+	}
 }
 
 func CopyAndMoveFile(sourceFilePath, destinationFilePath string) error {
