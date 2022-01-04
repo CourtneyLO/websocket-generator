@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/manifoldco/promptui"
-	"github.com/fatih/color"
-	"github.com/kyokomi/emoji/v2"
 )
 
 func language() string {
@@ -57,36 +56,36 @@ type QuestionDetails struct {
 
 func prompt(reference string) string {
 	questionDetails := GetQuestionDetails(reference)
-	questionLabel := color.New(color.FgBlack, color.Bold)
-	answer := color.New(color.FgBlue, color.Bold)
-	resultEmoji := emoji.Sprint(":pencil2: ")
 
 	prompt := promptui.Prompt{
 		Label: questionDetails.QuestionLabel,
 	}
 
-	result, error := prompt.Run()
+	answer := questionDetails.DefaultResponse
 
-	if result == "quit" || result == "q" {
-		goodbyeEmoji := emoji.Sprint(":wave: ")
-		goodbyeMessage := color.New(color.FgGreen, color.Bold)
-		goodbyeMessage.Println("Exiting WebSocket Generator, Bye " + goodbyeEmoji)
-		os.Exit(-1)
-	}
+	result, error := prompt.Run()
 
 	if error != nil {
 		fmt.Printf("Prompt failed %v\n", error)
 		return ""
 	}
 
+	if result != "" {
+		answer = result
+	} else {
+		defaultMessage := "You have made no entry so the default value has been used"
+		fmt.Println(defaultEmoji + defaultMessage)
+	}
+
+	if answer == "quit" || answer == "q" {
+		goodbyeMessage.Println("Exiting WebSocket Generator, no configuration file has been created. Bye " + goodbyeEmoji)
+		os.Exit(-1)
+	}
+
 	questionLabel.Println(questionDetails.ResponseLabel)
 
-	if (result == "" && questionDetails.DefaultResponse != "") {
-		answer.Println(resultEmoji + questionDetails.DefaultResponse)
-		defaultMessage := "You have made no entry so the default value has been used"
-		defaultEmoji := emoji.Sprint(":information_desk_person: ")
-		fmt.Println(defaultEmoji + defaultMessage)
-		return questionDetails.DefaultResponse
+	if reference == "Environment" {
+		answer = strings.ToLower(answer)
 	}
 
 	if (reference == "InfrastructureFilePath" || reference == "WebsocketFilePath") {
@@ -94,20 +93,30 @@ func prompt(reference string) string {
 		if error != nil {
 			fmt.Println(error)
 		}
-		destinationFilePath := filepath.Join(currentDirectory, result)
-		answer.Println(resultEmoji + destinationFilePath + result)
-		return destinationFilePath + result
+
+		destinationFilePath := filepath.Join(currentDirectory, answer)
+		answerColour.Println(resultEmoji + destinationFilePath)
+
+		if !strings.HasPrefix(answer, "/") {
+			answer = "/" + answer
+		}
+
+		if strings.HasSuffix(answer, "/") {
+			answer = strings.TrimRight(answer, "/")
+		}
+	} else {
+		answerColour.Println(resultEmoji + answer)
 	}
 
-	answer.Println(resultEmoji + result)
-	return result
+	fmt.Println("ANSWWER", answer)
+
+	return answer
 }
 
 func requiredPrompt(label string) string {
 	result := prompt("AWSAccountID")
 
 	if result == "" {
-		requiredEmoji := emoji.Sprint(":x: ")
 		fmt.Println(requiredEmoji + "This value is required. Please enter it now")
 		result = requiredPrompt(label)
 	}
@@ -133,7 +142,6 @@ func yesNo(label string) bool {
 		return false
 	}
 
-	selectionColour := color.New(color.FgBlue, color.Bold).SprintFunc()
 	fmt.Println("You chose " + selectionColour(result) + " to adding another environment")
 
 	if result == "Yes" {
