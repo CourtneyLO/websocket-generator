@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -9,26 +10,31 @@ import (
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Handles Serverless Deployment",
-	Long: `This command will run severless deploy`,
+	Long: `This command will run serverless deploy`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 2 {
-			fmt.Println(`
-				Project and Environment name are required,
-				i.e. 'websocket-generator serveless deploy helloworld development'
-			`)
+		configFile := ReadFile(WEBSOCKET_CONFIG_FILE_PATH)
+
+		if len(configFile) == 0 {
+			errorMessage.Println(CONFIG_FILE_NOT_FOUND_MESSAGE)
 			return
 		}
 
-		configFilePath := getFilePath(args)
-		configFileExists := checkIfFileExists(configFilePath)
+		argumentsValid, argumentInvalidMessage, argumentsForMessage := checkForValidArguments("serverless deploy", args, configFile)
 
-		if !configFileExists {
+		if !argumentsValid {
+			errorMessage.Printf(argumentInvalidMessage, strings.Join(argumentsForMessage, " "))
 			return
 		}
 
-		environment := args[1]
-		webSocketConfig := ReadFile(configFilePath)
-		DeploySeverless(webSocketConfig.WebsocketFilePath, environment)
+		currentDirectory, error := os.Getwd()
+		if error != nil {
+			errorMessage.Println("ERROR: The current directory path was not retrieved: %v", error)
+			return
+		}
+
+		environment := strings.ToLower(args[1])
+
+		DeployServerless(configFile, currentDirectory, environment)
 	},
 }
 

@@ -23,8 +23,26 @@ func init() {
 	rootCmd.AddCommand(terraformCmd)
 }
 
-func terraformExecCommand(action string, directory string, environment string) {
-	command := exec.Command("terraform", action, "-var-file", "./config/" + environment + ".json")
+func terraformExecCommand(action string, configFile map[string]interface{}, currentDirectory string, projectName string, environment string) {
+	environmentVariable := fmt.Sprintf("TF_VAR_ENVIRONMENT=%v", environment)
+	awsAccountIdVariable := fmt.Sprintf("TF_VAR_AWS_ACCOUNT_ID=%v", configFile[environment].(map[string]interface{})["awsAccountId"])
+	AwsRegionVariable := fmt.Sprintf("TF_VAR_AWS_REGION=%v", configFile["awsRegion"])
+	projectNameVariable := fmt.Sprintf("TF_VAR_PROJECT_NAME=%v", projectName)
+	infrastructureFilePath := configFile["infrastructureFilePath"]
+
+	if infrastructureFilePath == nil {
+		errorMessage.Println("ERROR: Infrastructure file path could not be found")
+		return
+	}
+
+	directory := currentDirectory + fmt.Sprintf("%v", infrastructureFilePath)
+
+	command := exec.Command("terraform", action)
+	command.Env = os.Environ()
+	command.Env = append(command.Env, environmentVariable)
+	command.Env = append(command.Env, awsAccountIdVariable)
+	command.Env = append(command.Env, AwsRegionVariable )
+	command.Env = append(command.Env, projectNameVariable)
 	command.Dir = directory
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
@@ -32,38 +50,34 @@ func terraformExecCommand(action string, directory string, environment string) {
 	command.Run()
 }
 
-func workspaceCommands(action string, directory string, environment string)  {
+func workspaceCommands(action string, configFile map[string]interface{}, currentDirectory string, environment string) {
 	command := exec.Command("terraform", "workspace", action, environment)
-	command.Dir = directory
+	command.Dir = fmt.Sprintf("%s%v", currentDirectory, configFile["infrastructureFilePath"])
 	command.Run()
 }
 
-func ApplyTerraform(directory string, environment string) {
-	terraformExecCommand("apply", directory, environment)
+func ApplyTerraform(configFile map[string]interface{}, currentDirectory string, projectName string, environment string) {
+	terraformExecCommand("apply", configFile, currentDirectory, projectName, environment)
 }
 
-func DestroyTerraform(directory string, environment string) {
-	terraformExecCommand("destroy", directory, environment)
+func DestroyTerraform(configFile map[string]interface{}, currentDirectory string, projectName string, environment string) {
+	terraformExecCommand("destroy", configFile, currentDirectory, projectName, environment)
 }
 
-func InitTerraform(directory string, environment string)  {
-	terraformExecCommand("init", directory, environment)
+func InitTerraform(configFile map[string]interface{}, currentDirectory string, projectName string, environment string) {
+	terraformExecCommand("init", configFile, currentDirectory, projectName, environment)
 }
 
-func CreateWorkSpaceTerraform(directory string, environment string)  {
-	workspaceCommands("new", directory, environment)
+func SelectWorkSpaceTerraform(configFile map[string]interface{}, currentDirectory string, environment string)  {
+	workspaceCommands("select", configFile, currentDirectory, environment)
 }
 
-func SelectWorkSpaceTerraform(directory string, environment string)  {
-	workspaceCommands("select", directory, environment)
+func DeleteWorkSpaceTerraform(configFile map[string]interface{}, currentDirectory string, projectName string, environment string)  {
+	// Move to default directory before trying to delete current terraform environment workspace
+	SelectWorkSpaceTerraform(configFile, currentDirectory, "default")
+	workspaceCommands("delete", configFile, currentDirectory, environment)
 }
 
-func DeleteWorkSpaceTerraform(directory string, environment string)  {
-	// Move to default directory before trying to delete current environments workspace
-	SelectWorkSpaceTerraform(directory, "default")
-	workspaceCommands("delete", directory, environment)
-}
-
-func PlanTerraform(directory string, environment string) {
-	terraformExecCommand("plan", directory, environment)
+func PlanTerraform(configFile map[string]interface{}, currentDirectory string, projectName string, environment string) {
+	terraformExecCommand("plan", configFile, currentDirectory, projectName, environment)
 }

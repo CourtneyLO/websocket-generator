@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -9,32 +10,37 @@ import (
 var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Deploys all code for creating a WebSocket API",
-	Long: `This command will run terraform init, terraform workspace select, terraform apply and serverless deployment.
+	Long: `This command will run terraform init, terraform workspace create, terraform apply and serverless deployment.
 It will create the backend infrastructure and the CloudFormation stack, lambdas and logs in AWS.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 2 {
-			fmt.Println(`
-				Project and Environment name are required,
-				i.e. 'websocket-generator create helloworld development'
-			`)
+		configFile := ReadFile(WEBSOCKET_CONFIG_FILE_PATH)
+
+		if len(configFile) == 0 {
+			errorMessage.Println(CONFIG_FILE_NOT_FOUND_MESSAGE)
 			return
 		}
 
-		configFilePath := getFilePath(args)
-		configFileExists := checkIfFileExists(configFilePath)
+		argumentsValid, argumentInvalidMessage, argumentsForMessage := checkForValidArguments( "create", args, configFile)
 
-		if !configFileExists {
+		if !argumentsValid {
+			errorMessage.Printf(argumentInvalidMessage, strings.Join(argumentsForMessage, " "))
 			return
 		}
 
-		environment := args[1]
+		currentDirectory, error := os.Getwd()
+		if error != nil {
+			errorMessage.Println("ERROR: current directory path was not retrieved: %v", error)
+			return
+		}
 
-		webSocketConfig := ReadFile(configFilePath)
-		InitTerraform(webSocketConfig.InfrastructureFilePath, environment)
-		SelectWorkSpaceTerraform(webSocketConfig.InfrastructureFilePath, environment)
-		ApplyTerraform(webSocketConfig.InfrastructureFilePath, environment)
-		DeploySeverless(webSocketConfig.WebsocketFilePath, environment)
+		projectName := strings.ToLower(args[0])
+		environment := strings.ToLower(args[1])
+
+		InitTerraform(configFile, currentDirectory, projectName, environment)
+		SelectWorkSpaceTerraform(configFile, currentDirectory, environment)
+		ApplyTerraform(configFile, currentDirectory, projectName, environment)
+		DeployServerless(configFile, currentDirectory, environment)
 	},
 }
 

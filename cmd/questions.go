@@ -2,11 +2,11 @@ package cmd
 
 func environmentQuestions(projectName string, environmentConfig map[string]EnvironmentData, environments []string) []string {
 	choosenEnvironment := prompt("Environment")
-	awsAccountID := requiredPrompt("AWSAccountID")
+	awsAccountId := requiredPrompt("AWSAccountID")
 
 	environmentData := EnvironmentData {
 		Environment: choosenEnvironment,
-		AWSAccountID: awsAccountID,
+		AwsAccountId: awsAccountId,
 	}
 
 	environmentConfig[choosenEnvironment] = environmentData
@@ -21,12 +21,12 @@ func environmentQuestions(projectName string, environmentConfig map[string]Envir
 	return environments
 }
 
-func Questions(projectName string) (WebSocketConfig, map[string]EnvironmentData) {
+func Questions(projectName string) (WebsocketConfig, map[string]EnvironmentData) {
 	choosenLanguage := language()
 	infrastructureDestinationFilePath := prompt("InfrastructureFilePath")
 
 	websocketDestinationFilePath := prompt("WebsocketFilePath")
-	awsRegion := prompt("AWSRegion")
+	AwsRegion := prompt("AwsRegion")
 	authorizationKey := prompt("AuthorizationKey")
 
 	var environments []string
@@ -44,15 +44,51 @@ func Questions(projectName string) (WebSocketConfig, map[string]EnvironmentData)
     }
   }
 
-	webSocketConfig := WebSocketConfig {
+	websocketConfig := WebsocketConfig {
 		Environments: uniqueEnvironments,
 		ProjectName: projectName,
 		Language: choosenLanguage,
 		InfrastructureFilePath: infrastructureDestinationFilePath,
 		WebsocketFilePath: websocketDestinationFilePath,
-		AWSRegion: awsRegion,
+		AwsRegion: AwsRegion,
 		AuthorizationKey: authorizationKey,
 	}
 
-	return webSocketConfig, environmentConfig
+	return websocketConfig, environmentConfig
+}
+
+func GetQuestionDetails(reference string) QuestionDetails {
+	QuestionsConfig := map[string]QuestionDetails{
+		"InfrastructureFilePath":  {
+			QuestionLabel: "Infrastructure Code Location Path. Default value is <current-directory>/infrastructure",
+			DefaultResponse: "/infrastructure",
+			ResponseLabel: "Your Infrastructure Code Location Path:",
+		},
+		"WebsocketFilePath":  {
+			QuestionLabel: "WebSocket Code Location Path. Default value is <current-directory>/websocket",
+			DefaultResponse: "/websocket",
+			ResponseLabel: "Your WebSocket Code Location Path:",
+		},
+		"AwsRegion":  {
+			QuestionLabel: "AWS Region. Default value is eu-west-2",
+			DefaultResponse: "eu-west-2",
+			ResponseLabel: "Your AWS Region:",
+		},
+		"AuthorizationKey":  {
+			QuestionLabel: "Authorization Key Name. Default value is authorization",
+			DefaultResponse: "authorization",
+			ResponseLabel: "Your Authorization Query Parameter Key is:",
+		},
+		"Environment":  {
+			QuestionLabel: "Environment Name. Default value is development",
+			DefaultResponse: "development",
+			ResponseLabel: "Environment Choosen:",
+		},
+		"AWSAccountID":  {
+			QuestionLabel: "AWS Account ID",
+			DefaultResponse: "",
+			ResponseLabel: "Your AWS Account ID:",
+		},
+	}
+	return QuestionsConfig[reference]
 }

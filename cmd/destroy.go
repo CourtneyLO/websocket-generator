@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -11,26 +12,33 @@ var destroyCmd = &cobra.Command{
 	Short: "Destroys all AWS resources created by the apply/create",
 	Long: `This command runs terraform workspace select, terraform destroy and terraform workspace delete`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 2 {
-			fmt.Println(`
-				Project and Environment name are required,
-				i.e. 'websocket-generator terraform destroy helloworld development'
-			`)
+		configFile := ReadFile(WEBSOCKET_CONFIG_FILE_PATH)
+
+		if len(configFile) == 0 {
+			errorMessage.Println(CONFIG_FILE_NOT_FOUND_MESSAGE)
 			return
 		}
 
-		configFilePath := getFilePath(args)
-		configFileExists := checkIfFileExists(configFilePath)
 
-		if !configFileExists {
+		argumentsValid, argumentInvalidMessage, argumentsForMessage := checkForValidArguments("terraform destroy", args, configFile)
+
+		if !argumentsValid {
+			errorMessage.Printf(argumentInvalidMessage, strings.Join(argumentsForMessage, " "))
 			return
 		}
 
-		environment := args[1]
-		webSocketConfig := ReadFile(configFilePath)
-		SelectWorkSpaceTerraform(webSocketConfig.InfrastructureFilePath, environment)
-		DestroyTerraform(webSocketConfig.InfrastructureFilePath, environment)
-		DeleteWorkSpaceTerraform(webSocketConfig.InfrastructureFilePath, environment)
+		currentDirectory, error := os.Getwd()
+		if error != nil {
+			errorMessage.Println("ERROR: The current directory path was not retrieved: %v", error)
+			return
+		}
+
+		projectName := strings.ToLower(args[0])
+		environment := strings.ToLower(args[1])
+
+		SelectWorkSpaceTerraform(configFile, currentDirectory, environment)
+		DestroyTerraform(configFile, currentDirectory, projectName, environment)
+		DeleteWorkSpaceTerraform(configFile, currentDirectory, projectName, environment)
 	},
 }
 

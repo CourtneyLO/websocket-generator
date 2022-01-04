@@ -21,7 +21,16 @@ func init() {
 	rootCmd.AddCommand(serverlessCmd)
 }
 
-func severlessExecCommand(action string, directory string, environment string) {
+func serverlessExecCommand(action string, configFile map[string]interface{}, currentDirectory string, environment string) {
+	websocketFilePath := configFile["websocketFilePath"]
+
+	if websocketFilePath == nil {
+		errorMessage.Println("ERROR: WebSocket file path could not be found")
+		return
+	}
+
+	directory := fmt.Sprintf("%s%v", currentDirectory, websocketFilePath)
+
 	command := exec.Command("sls", action, "--stage", environment)
 	command.Dir = directory
 	command.Stdout = os.Stdout
@@ -30,10 +39,10 @@ func severlessExecCommand(action string, directory string, environment string) {
 	command.Run()
 }
 
-func DeploySeverless(directory string, environment string) {
-	severlessExecCommand("deploy", directory, environment)
+func DeployServerless(configFile map[string]interface{}, currentDirectory, environment string){
+	serverlessExecCommand("deploy", configFile, currentDirectory, environment)
 }
 
-func RemoveSeverless(directory string, environment string) {
-	severlessExecCommand("remove", directory, environment)
+func RemoveServerless(configFile map[string]interface{}, currentDirectory, environment string) {
+	serverlessExecCommand("remove", configFile, currentDirectory, environment)
 }

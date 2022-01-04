@@ -7,10 +7,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var applyCmd = &cobra.Command{
-	Use:   "apply",
-	Short: "Applies all terraform code to create AWS resources",
-	Long: `This command will run terraform init, terraform workspace new and terraform apply`,
+var updateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Deploys all code changes for WebSocket API",
+	Long: `This command will run terraform init, terraform workspace select, terraform apply and serverless deployment.
+It will update the backend infrastructure and the CloudFormation stack and lambdas in AWS.
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		configFile := ReadFile(WEBSOCKET_CONFIG_FILE_PATH)
 
@@ -19,7 +21,7 @@ var applyCmd = &cobra.Command{
 			return
 		}
 
-		argumentsValid, argumentInvalidMessage, argumentsForMessage := checkForValidArguments("terraform apply", args, configFile)
+		argumentsValid, argumentInvalidMessage, argumentsForMessage := checkForValidArguments("update", args, configFile)
 
 		if !argumentsValid {
 			errorMessage.Printf(argumentInvalidMessage, strings.Join(argumentsForMessage, " "))
@@ -38,9 +40,10 @@ var applyCmd = &cobra.Command{
 		InitTerraform(configFile, currentDirectory, projectName, environment)
 		SelectWorkSpaceTerraform(configFile, currentDirectory, environment)
 		ApplyTerraform(configFile, currentDirectory, projectName, environment)
+		DeployServerless(configFile, currentDirectory, environment)
 	},
 }
 
 func init() {
-	terraformCmd.AddCommand(applyCmd)
+	rootCmd.AddCommand(updateCmd)
 }

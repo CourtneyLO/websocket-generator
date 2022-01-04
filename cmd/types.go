@@ -1,30 +1,16 @@
 package cmd
 
 type EnvironmentData struct {
-	Environment               string
-	AWSAccountID              string
+	Environment               string `json:"environment"`
+	AwsAccountId              string `json:"awsAccountId"`
 }
 
-type WebSocketConfig struct {
+type WebsocketConfig struct {
 	Environments              []string
 	ProjectName               string
 	Language                  string
 	InfrastructureFilePath    string
 	WebsocketFilePath         string
-	AWSRegion                 string
+	AwsRegion                 string
 	AuthorizationKey          string
-}
-
-type TerraformConfig struct {
-	ENVIRONMENT               string
-	AWS_REGION                string
-	AWS_ACCOUNT_ID            string
-	PROJECT_NAME       string
-}
-
-type ServerlessConfig struct {
-	AWSAccountID              string
-	AuthorizationKey          string
-	ProjectName               string
-	AWSRegion                 string
 }
