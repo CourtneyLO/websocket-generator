@@ -1,4 +1,4 @@
-module websocket-generator
+module github.com/CourtneyLO/websocket-generator
 
 go 1.16
 
