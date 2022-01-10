@@ -1,5 +1,13 @@
 {
+  "scripts": {
+    "test": "jest"
+  },
   "devDependencies": {
+    "jest": "^27.4.7",
     "serverless-disable-functions": "^0.1.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.46.0",
+    "aws-sdk": "^2.1053.0"
   }
 }

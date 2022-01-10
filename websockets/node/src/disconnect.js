@@ -1,11 +1,13 @@
 const DynamoDB = require('aws-sdk/clients/dynamodb');
 
+const WEBSOCKET_MANAGER_TABLE_NAME = process.env.WEBSOCKET_TABLE_NAME;
+
 exports.handler = async function(event, context, callback) {
-  console.log('DISCONNECT HANDLER');
+  console.log('Disconnect Handler');
 
   const db = new DynamoDB.DocumentClient();
   const deleteParams = {
-    TableName: process.env.WEBSOCKET_TABLE_NAME,
+    TableName: WEBSOCKET_MANAGER_TABLE_NAME,
     Key: {
       connectionId: event.requestContext.connectionId,
     }
@@ -13,7 +15,6 @@ exports.handler = async function(event, context, callback) {
 
   try {
     await db.delete(deleteParams).promise();
-    console.log('DISCONNECTED');
     return {
       statusCode: 200,
       body: "Disconnected"
@@ -21,7 +22,7 @@ exports.handler = async function(event, context, callback) {
   } catch (error) {
     console.error('ERROR', error);
     return {
-      statusCode: 501,
+      statusCode: 500,
       body: "Failed to disconnect: " + JSON.stringify(error),
     };
   }

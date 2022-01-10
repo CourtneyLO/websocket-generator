@@ -32,10 +32,10 @@ custom:
   dynamodbTableName: ${self:custom.projectName}-${self:provider.stage}-websocket-manager
 
 functions:
-  authorizer:
+  authorization:
     name: ${self:custom.projectName}-${self:provider.stage}-Authorizer
     role: ${cf:${self:custom.terraformOutputs}.IAMRoleArnAuthorizerLambda}
-    handler: src/authorizer.handler
+    handler: src/authorization.handler
     environment:
       AUTHORIZATION_SECRET_NAME: ${self:custom.authorizationSecretName}
       AUTHORIZATION_KEY: ${self:custom.authorizationKey}
@@ -48,7 +48,7 @@ functions:
       - websocket:
           route: $connect
           authorizer:
-            name: authorizer
+            name: authorization
             identitySource: 'route.request.querystring.${self:custom.authorizationKey}'
     environment:
       WEBSOCKET_TABLE_NAME: ${self:custom.dynamodbTableName}

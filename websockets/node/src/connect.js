@@ -19,6 +19,7 @@ const scanDBForDevice = async (db, deviceType) => {
     return connectionsByDevice.Items;
   } catch (error) {
     console.error(`Failed to scan database for existing device types: ${deviceType}`, error);
+    return [];
   }
 };
 
@@ -62,7 +63,7 @@ const addNewDeviceConnectionToDB = async (db, connectionId, deviceType) => {
 };
 
 exports.handler = async function(event, context, callback) {
-  console.log('CONNECT HANDLER');
+  console.log('Connect Handler');
 
   const deviceType = event.queryStringParameters && event.queryStringParameters.deviceType;
 
@@ -80,8 +81,8 @@ exports.handler = async function(event, context, callback) {
   const error = await addNewDeviceConnectionToDB(db, connectionId, deviceType);
 
   if (error) {
-    return { statusCode: 500, body: error };
+    return { statusCode: 500, body: "Failed to connect: " + JSON.stringify(error) };
   }
 
-  return { statusCode: 200, body: 'Connection made' };
+  return { statusCode: 200, body: `Connection made with the connection ID of ${connectionId}` };
 };

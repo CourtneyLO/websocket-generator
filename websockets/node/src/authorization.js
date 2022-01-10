@@ -1,16 +1,14 @@
-const AWS = require("aws-sdk");
+const AWS = require('aws-sdk');
 
-const lambdaClient = new AWS.Lambda({ region: process.env.AWS_REGION_VALUE });
-const secretsManagerClient = new AWS.SecretsManager({ region: process.env.AWS_REGION_VALUE });
+const { AUTHORIZATION_SECRET_NAME, AWS_REGION_VALUE } = process.env
 
-const getSecretValue = async (event, context, callback) => {
-  console.log('SECRETS HANDLER');
+const secretsManagerClient = new AWS.SecretsManager({ region: AWS_REGION_VALUE });
 
+const getSecretValue = async () => {
   const secretData = await secretsManagerClient.getSecretValue({
-    SecretId: `${process.env.AUTHORIZATION_SECRET_NAME}`
+    SecretId: `${AUTHORIZATION_SECRET_NAME}`
   }).promise();
 
-  console.log('secret returned');
   return JSON.parse(secretData.SecretString);
 };
 
@@ -33,7 +31,7 @@ const generateAllowPolicy = function(resource) {
 };
 
 exports.handler = async (event, context, callback) => {
-  console.log('AUTHORIZER HANDLER');
+  console.log('Authoriaztion Handler');
 
   const queryStringParameters = event.queryStringParameters;
   const secret = await getSecretValue();
