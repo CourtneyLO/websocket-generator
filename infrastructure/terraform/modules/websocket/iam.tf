@@ -11,18 +11,18 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
 }
 
 # IAM role for the Authorizer lambda
-resource "aws_iam_role" "authorizer_lambda" {
+resource "aws_iam_role" "authorization_lambda" {
   name               = "${var.PROJECT_NAME}-${var.ENVIRONMENT}-AuthorizerLambda"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
 }
 
-resource "aws_iam_role_policy" "authorizer_lambda" {
+resource "aws_iam_role_policy" "authorization_lambda" {
   name   = "${var.PROJECT_NAME}-${var.ENVIRONMENT}-AuthorizerLambda"
-  role   = aws_iam_role.authorizer_lambda.id
-  policy = data.aws_iam_policy_document.authorizer_lambda.json
+  role   = aws_iam_role.authorization_lambda.id
+  policy = data.aws_iam_policy_document.authorization_lambda.json
 }
 
-data "aws_iam_policy_document" "authorizer_lambda" {
+data "aws_iam_policy_document" "authorization_lambda" {
   statement {
     actions   = ["secretsmanager:GetSecretValue"]
     resources = ["*"]

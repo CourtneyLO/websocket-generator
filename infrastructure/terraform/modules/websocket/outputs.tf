@@ -7,9 +7,9 @@ resource "aws_cloudformation_stack" "outputs" {
         "IAMRoleArnAuthorizerLambda": {
           "Type": "AWS::SSM::Parameter",
           "Properties": {
-            "Name": "${var.PROJECT_NAME}-${var.ENVIRONMENT}-iam-role-arn-authorizer-lambda",
+            "Name": "${var.PROJECT_NAME}-${var.ENVIRONMENT}-iam-role-arn-authorization-lambda",
             "Type": "String",
-            "Value": "${aws_iam_role.authorizer_lambda.arn}"
+            "Value": "${aws_iam_role.authorization_lambda.arn}"
           }
         },
         "IAMRoleArnConnectLambda": {
@@ -47,7 +47,7 @@ resource "aws_cloudformation_stack" "outputs" {
       },
       "Outputs": {
         "IAMRoleArnAuthorizerLambda": {
-          "Value": "${aws_iam_role.authorizer_lambda.arn}"
+          "Value": "${aws_iam_role.authorization_lambda.arn}"
         },
         "IAMRoleArnConnectLambda": {
           "Value": "${aws_iam_role.connect_lambda.arn}"
