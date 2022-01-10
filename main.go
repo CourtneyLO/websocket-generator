@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/CourtneyLO/websocket-generator"
+	"github.com/CourtneyLO/websocket-generator/cmd"
 )
 
 func main() {
