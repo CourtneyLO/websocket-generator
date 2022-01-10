@@ -35,4 +35,4 @@ All Terraform and Serveless code will be added to you project in the directory o
 | 5  | Terraform Resource Name | The prefix you wish to add to all your resource names. Resource name format will look as \<terraform-resource-name\>-\<environment\>-\<specifc-resource-name\> | your projects name | helloworld-development-websocket-manager|
 | 6  | AWS Region | The AWS region where you want your infrastructure to be located | eu-west-2 | us-east-1 |
 | 7  | AWS Account ID | The AWS account ID that you wish to use for your infrastructure | This is required, there is no default | 123456789000 |
-| 8 | Authorization Key Name | The name of the authorizer query parameter on your WebSocket URL  | Authorization | ?Authorization=1234 |
+| 8 | Authorization Key Name | The name of the authorization query parameter on your WebSocket URL  | authorization | ?authorization=1234 |
