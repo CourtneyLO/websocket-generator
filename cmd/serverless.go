@@ -49,7 +49,7 @@ func npmInstallExecCommand(configFile map[string]interface{}, currentDirectory s
 
 	directory := fmt.Sprintf("%s%v", currentDirectory, websocketFilePath)
 
-	command := exec.Command("nmp", "install")
+	command := exec.Command("npm", "install")
 	command.Dir = directory
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
