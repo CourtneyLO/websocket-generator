@@ -98,7 +98,7 @@ func prompt(reference string) string {
 		answerColour.Println(resultEmoji + destinationFilePath)
 
 		if !strings.HasPrefix(answer, "/") {
-			answer = "/" + answer
+			answer = "/" + strings.TrimSpace(answer)
 		}
 
 		if strings.HasSuffix(answer, "/") {
@@ -108,9 +108,10 @@ func prompt(reference string) string {
 		answerColour.Println(resultEmoji + answer)
 	}
 
-	fmt.Println("ANSWER", answer)
+	trimedAnswer := strings.TrimSpace(answer)
+	fmt.Println("Answer:", trimedAnswer)
 
-	return answer
+	return trimedAnswer
 }
 
 func requiredPrompt(label string) string {
