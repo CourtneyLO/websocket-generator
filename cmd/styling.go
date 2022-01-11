@@ -5,6 +5,7 @@ import (
 	"github.com/kyokomi/emoji/v2"
 )
 
+var boldMessage = color.New(color.Bold)
 var errorMessage = color.New(color.FgRed, color.Bold)
 var goodbyeMessage = color.New(color.FgGreen, color.Bold)
 var informationHeading = color.New(color.FgRed, color.Bold).Add(color.Underline)

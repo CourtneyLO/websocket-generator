@@ -71,7 +71,7 @@ func prompt(reference string) string {
 	}
 
 	if result != "" {
-		answer = result
+		answer = strings.ReplaceAll(result, " ", "")
 	} else {
 		defaultMessage := "You have made no entry so the default value has been used"
 		fmt.Println(defaultEmoji + defaultMessage)
@@ -98,7 +98,7 @@ func prompt(reference string) string {
 		answerColour.Println(resultEmoji + destinationFilePath)
 
 		if !strings.HasPrefix(answer, "/") {
-			answer = "/" + strings.TrimSpace(answer)
+			answer = "/" + answer
 		}
 
 		if strings.HasSuffix(answer, "/") {
@@ -108,10 +108,9 @@ func prompt(reference string) string {
 		answerColour.Println(resultEmoji + answer)
 	}
 
-	trimedAnswer := strings.TrimSpace(answer)
-	fmt.Println("Answer:", trimedAnswer)
 
-	return trimedAnswer
+	fmt.Println(boldMessage.Sprintf("Answer:"), answer)
+	return answer
 }
 
 func requiredPrompt(label string) string {
