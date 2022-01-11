@@ -6,12 +6,12 @@ const scanDBForDevice = async (db, deviceType) => {
   try {
     const scanParams = {
       TableName: WEBSOCKET_MANAGER_TABLE_NAME,
-      FilterExpression: '#device_type = :device_type_value',
+      FilterExpression: '#deviceType = :deviceTypeValue',
       ExpressionAttributeNames: {
-        "#device_type": "device_type",
+        "#deviceType": "deviceType",
       },
       ExpressionAttributeValues: {
-        ':device_type_value': deviceType
+        ':deviceTypeValue': deviceType
       },
     };
 
@@ -46,11 +46,12 @@ const addNewDeviceConnectionToDB = async (db, connectionId, deviceType) => {
       TableName: WEBSOCKET_MANAGER_TABLE_NAME,
       Item: {
         connectionId: connectionId,
+        timestamp: `${new Date()}`
       }
     };
 
     if (deviceType) {
-      putParams.Item.device_type = deviceType;
+      putParams.Item.deviceType = deviceType;
     }
 
     await db.put(putParams).promise();
@@ -76,7 +77,7 @@ exports.handler = async function(event, context, callback) {
   const items = deviceType && await scanDBForDevice(db, deviceType);
   // Delete existing device type rows from the database so that when we add the new connection there will be only one connectionId for that device type
   deviceType && items.length && await deleteExistingRowsWithDeviceType(db, items, deviceType)
-  // Add new connectionId and device_type to the database
+  // Add new connectionId and deviceType to the database
   const connectionId = event.requestContext.connectionId;
   const error = await addNewDeviceConnectionToDB(db, connectionId, deviceType);
 

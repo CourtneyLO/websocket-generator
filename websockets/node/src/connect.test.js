@@ -27,16 +27,21 @@ const event = {
   queryStringParameters: { deviceType: deviceType }
 };
 
+const mockDate = new Date(1466424490000)
+const spy = jest
+  .spyOn(global, 'Date')
+  .mockImplementation(() => mockDate)
+
 test('the table name and device type are set as the parameters for database row scan request', async () => {
   await connectHandler.handler(event);
   const mockedScanParams = {
     TableName: tableName,
-    FilterExpression: '#device_type = :device_type_value',
+    FilterExpression: '#deviceType = :deviceTypeValue',
     ExpressionAttributeNames: {
-      "#device_type": "device_type",
+      "#deviceType": "deviceType",
     },
     ExpressionAttributeValues: {
-      ':device_type_value': deviceType
+      ':deviceTypeValue': deviceType
     }
   }
   expect(mockDocumentClientReturnValue.scan).toBeCalledOnce;
@@ -61,7 +66,8 @@ test('the table name and connection ID and device type are set as the parameters
     TableName: 'example_websocket_manager',
     Item: {
       connectionId: connectionId,
-      device_type: deviceType
+      timestamp: `${mockDate}`,
+      deviceType: deviceType
     }
   }
   expect(mockDocumentClientReturnValue.put).toBeCalledOnce;
@@ -74,7 +80,8 @@ test('the table name and connection ID WITHOUT device type are set as the parame
   const mockedPutParams = {
     TableName: 'example_websocket_manager',
     Item: {
-      connectionId: connectionId
+      connectionId: connectionId,
+      timestamp: `${mockDate}`
     }
   }
   expect(mockDocumentClientReturnValue.put).toBeCalledOnce;
