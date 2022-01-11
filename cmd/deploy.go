@@ -34,6 +34,7 @@ var deployCmd = &cobra.Command{
 
 		environment := strings.ToLower(args[1])
 
+		InstallNodePackages(configFile, currentDirectory, environment)
 		DeployServerless(configFile, currentDirectory, environment)
 	},
 }

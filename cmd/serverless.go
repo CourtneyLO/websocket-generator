@@ -39,10 +39,32 @@ func serverlessExecCommand(action string, configFile map[string]interface{}, cur
 	command.Run()
 }
 
+func npmInstallExecCommand(configFile map[string]interface{}, currentDirectory string, environment string) {
+	websocketFilePath := configFile["websocketFilePath"]
+
+	if websocketFilePath == nil {
+		errorMessage.Println("ERROR: WebSocket file path could not be found")
+		return
+	}
+
+	directory := fmt.Sprintf("%s%v", currentDirectory, websocketFilePath)
+
+	command := exec.Command("nmp", "install")
+	command.Dir = directory
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	command.Stdin = os.Stdin
+	command.Run()
+}
+
 func DeployServerless(configFile map[string]interface{}, currentDirectory, environment string){
 	serverlessExecCommand("deploy", configFile, currentDirectory, environment)
 }
 
 func RemoveServerless(configFile map[string]interface{}, currentDirectory, environment string) {
 	serverlessExecCommand("remove", configFile, currentDirectory, environment)
+}
+
+func InstallNodePackages(configFile map[string]interface{}, currentDirectory, environment string)  {
+	npmInstallExecCommand(configFile, currentDirectory, environment)
 }

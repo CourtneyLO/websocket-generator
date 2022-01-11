@@ -40,6 +40,7 @@ It will create the backend infrastructure and the CloudFormation stack, lambdas 
 		InitTerraform(configFile, currentDirectory, projectName, environment)
 		SelectWorkSpaceTerraform(configFile, currentDirectory, environment)
 		ApplyTerraform(configFile, currentDirectory, projectName, environment)
+		InstallNodePackages(configFile, currentDirectory, environment)
 		DeployServerless(configFile, currentDirectory, environment)
 	},
 }
