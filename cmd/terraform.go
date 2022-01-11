@@ -11,9 +11,9 @@ import (
 var terraformCmd = &cobra.Command{
 	Use:   "terraform",
 	Short: "Handles Terraform commands only",
-	Long: `If you wish to only apply/reapply/detroy infrastructure code without deploying/removing serveless infrastructure use this command with either apply or delete.
+	Long: `If you wish to only apply or destroy infrastructure code without deploying/removing serveless infrastructure use this command with either apply or delete.
 Note: if you choose to destroy the infrastructure but keep the serveless functionlity you may experience some issues.
-It is recommended to destory the infrastructure first.`,
+It is recommended to destroy the infrastructure first.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Please add apply, destroy or --help to your command")
 	},
