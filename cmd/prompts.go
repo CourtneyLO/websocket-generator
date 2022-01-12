@@ -108,7 +108,6 @@ func prompt(reference string) string {
 		answerColour.Println(resultEmoji + answer)
 	}
 
-
 	fmt.Println(boldMessage.Sprintf("Answer:"), answer)
 	return answer
 }
