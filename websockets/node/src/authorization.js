@@ -9,7 +9,7 @@ const getSecretValue = async () => {
     SecretId: `${AUTHORIZATION_SECRET_NAME}`
   }).promise();
 
-  return JSON.parse(secretData.SecretString);
+  return secretData.SecretString;
 };
 
 const generateAllowPolicy = function(resource) {
