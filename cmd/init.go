@@ -59,18 +59,10 @@ func constructInfrastructureDirectory(websocketConfig WebsocketConfig, currentDi
 	sourceFileInfrastructure := websocketGeneratorSrcLocation + "infrastructure/" + choosenIaC
 
 	destinationInfrastructureFilePath := currentDirectory + websocketConfig.InfrastructureFilePath
-	modulesFolderExists := checkIfFileExists(destinationInfrastructureFilePath + "/modules")
 
-	if modulesFolderExists {
-		sourceFileInfrastructureError := CopyAndMoveFolder(sourceFileInfrastructure + "/modules", destinationInfrastructureFilePath + "/modules")
-		if sourceFileInfrastructureError != nil {
-			fmt.Println("The WebSocket modules folder failed to be copied and move to it's destination", sourceFileInfrastructureError)
-		}
-	} else {
-		sourceFileInfrastructureError := CopyAndMoveFolder(sourceFileInfrastructure + "/modules", destinationInfrastructureFilePath + "/modules")
-		if sourceFileInfrastructureError != nil {
-			fmt.Println("The WebSocket modules folder failed to be copied and move to it's destination", sourceFileInfrastructureError)
-		}
+	sourceFileInfrastructureError := CopyAndMoveFolder(sourceFileInfrastructure + "/modules", destinationInfrastructureFilePath + "/modules")
+	if sourceFileInfrastructureError != nil {
+		fmt.Println("The WebSocket modules folder failed to be copied and move to it's destination", sourceFileInfrastructureError)
 	}
 
 	mainFileExists := checkIfFileExists(destinationInfrastructureFilePath + "/main.tf")
