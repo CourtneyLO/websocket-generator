@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"bytes"
 
 	"github.com/spf13/cobra"
 )
@@ -52,8 +53,15 @@ func terraformExecCommand(action string, configFile map[string]interface{}, curr
 
 func workspaceCommands(action string, configFile map[string]interface{}, currentDirectory string, environment string) {
 	command := exec.Command("terraform", "workspace", action, environment)
+
+	var errb bytes.Buffer
 	command.Dir = fmt.Sprintf("%s%v", currentDirectory, configFile["infrastructureFilePath"])
+	command.Stderr = &errb
 	command.Run()
+
+	if errb.Len() > 0 {
+		workspaceCommands("new", configFile, currentDirectory, environment)
+	}
 }
 
 func ApplyTerraform(configFile map[string]interface{}, currentDirectory string, projectName string, environment string) {
@@ -68,11 +76,11 @@ func InitTerraform(configFile map[string]interface{}, currentDirectory string, p
 	terraformExecCommand("init", configFile, currentDirectory, projectName, environment)
 }
 
-func SelectWorkSpaceTerraform(configFile map[string]interface{}, currentDirectory string, environment string)  {
+func SelectWorkSpaceTerraform(configFile map[string]interface{}, currentDirectory string, environment string) {
 	workspaceCommands("select", configFile, currentDirectory, environment)
 }
 
-func DeleteWorkSpaceTerraform(configFile map[string]interface{}, currentDirectory string, projectName string, environment string)  {
+func DeleteWorkSpaceTerraform(configFile map[string]interface{}, currentDirectory string, projectName string, environment string) {
 	// Move to default directory before trying to delete current terraform environment workspace
 	SelectWorkSpaceTerraform(configFile, currentDirectory, "default")
 	workspaceCommands("delete", configFile, currentDirectory, environment)
