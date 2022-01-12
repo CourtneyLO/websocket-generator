@@ -19,7 +19,7 @@ var initCmd = &cobra.Command{
 	Short: "Creates the config needed in order to create or delete the WebSocket API",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			errorMessage.Println("ERROR: Project Name is required to run this command")
+			errorMessage.Println("Error: Project Name is required to run this command")
 			return
 		}
 
@@ -31,7 +31,11 @@ var initCmd = &cobra.Command{
 			combinedConfig[key] = value
 		}
 
-		WriteJsonFile(WEBSOCKET_CONFIG_FILE_PATH, combinedConfig)
+		writeJsonFileError := WriteJsonFile(WEBSOCKET_CONFIG_FILE_PATH, combinedConfig)
+
+		if writeJsonFileError != nil {
+			errorMessage.Println(writeJsonFileError)
+		}
 
 		websocketGeneratorSrcLocation := getWebsocketGeneratorSrcLocation()
 
@@ -60,10 +64,15 @@ func constructInfrastructureDirectory(websocketConfig WebsocketConfig, currentDi
 
 	sourceFileInfrastructureError := CopyAndMoveFolder(sourceFileInfrastructure + "/modules", destinationInfrastructureFilePath + "/modules")
 	if sourceFileInfrastructureError != nil {
-		fmt.Println("The WebSocket modules folder failed to be copied and move to it's destination", sourceFileInfrastructureError)
+		errorMessage.Println("Error: The WebSocket modules folder failed to be copied and move to it's destination", sourceFileInfrastructureError)
 	}
 
-	mainFileExists := checkIfFileExists(destinationInfrastructureFilePath + "/main.tf")
+	mainFileExists, fileExistError := checkIfFileExists(destinationInfrastructureFilePath + "/main.tf")
+
+	if fileExistError != nil {
+		errorMessage.Println(fileExistError)
+		return
+	}
 
 	if mainFileExists {
 		fmt.Println("")
@@ -72,12 +81,24 @@ func constructInfrastructureDirectory(websocketConfig WebsocketConfig, currentDi
 	} else {
 		sourceFileInfrastructureError := CopyAndMoveFile(sourceFileInfrastructure + "/main.tf", destinationInfrastructureFilePath + "/main.tf")
 		if sourceFileInfrastructureError != nil {
-			fmt.Println("The WebSocket main.tf file failed to be copied and move to it's destination", sourceFileInfrastructureError)
+			errorMessage.Println("Error: The WebSocket main.tf file failed to be copied and move to it's destination", sourceFileInfrastructureError)
 		}
 	}
 
-	variableFileExists := checkIfFileExists(destinationInfrastructureFilePath + "/variables.tf")
-	varsFileExists := checkIfFileExists(destinationInfrastructureFilePath + "/vars.tf")
+	variableFileExists, variableFileExistError := checkIfFileExists(destinationInfrastructureFilePath + "/variables.tf")
+
+	if variableFileExistError != nil {
+		errorMessage.Println(variableFileExistError)
+		return
+	}
+
+	varsFileExists, varsfileExistError := checkIfFileExists(destinationInfrastructureFilePath + "/vars.tf")
+
+	if varsfileExistError != nil {
+		errorMessage.Println(varsfileExistError)
+		return
+	}
+
 	variableTypeFileExists := variableFileExists || varsFileExists
 
 	if variableTypeFileExists {
@@ -88,7 +109,7 @@ func constructInfrastructureDirectory(websocketConfig WebsocketConfig, currentDi
 	} else {
 		sourceFileInfrastructureError := CopyAndMoveFile(sourceFileInfrastructure + "/variables.tf", destinationInfrastructureFilePath + "/variables.tf")
 		if sourceFileInfrastructureError != nil {
-			fmt.Println("The WebSocket variables.tf file failed to be copied and move to it's destination", sourceFileInfrastructureError)
+			errorMessage.Println("Error: The WebSocket variables.tf file failed to be copied and move to it's destination", sourceFileInfrastructureError)
 		}
 	}
 }
@@ -99,7 +120,7 @@ func constructServerlessDirectory(websocketConfig WebsocketConfig, currentDirect
 	sourceFileWebSocketsError := CopyAndMoveFolder(sourceFileWebSockets, destinationWebsocketFilePath)
 
 	if sourceFileWebSocketsError != nil {
-		fmt.Println("The WebSocket folder failed to be copied and move to it's destination", sourceFileWebSocketsError)
+		errorMessage.Println("Error: The WebSocket folder failed to be copied and move to it's destination", sourceFileWebSocketsError)
 		return
 	}
 
@@ -120,7 +141,11 @@ func constructServerlessConfig(currentDirectory string, filePath string)  {
 	constructedFilePath = constructedFilePath + WEBSOCKET_CONFIG_FILE_PATH
 	data := []byte(fmt.Sprintf(WEBSOCKET_GENERATOR_FILE_MESSAGE, constructedFilePath))
 
-	WriteFile(currentDirectory + filePath + "/config.js", data)
+	writeFileError := WriteFile(currentDirectory + filePath + "/config.js", data)
+
+	if writeFileError != nil {
+		errorMessage.Println(writeFileError)
+	}
 }
 
 func getWebsocketGeneratorSrcLocation() string {

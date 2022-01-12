@@ -25,7 +25,7 @@ func executeCommand(commandType string, configFile map[string]interface{}, curre
 	websocketFilePath := configFile["websocketFilePath"]
 
 	if websocketFilePath == nil {
-		errorMessage.Println("ERROR: WebSocket file path could not be found")
+		errorMessage.Println("Error: WebSocket file path could not be found")
 		return
 	}
 

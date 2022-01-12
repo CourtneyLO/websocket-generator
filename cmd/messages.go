@@ -56,3 +56,5 @@ module.exports = websocketGeneratorConfig;
 `
 
 var CONFIG_FILE_NOT_FOUND_MESSAGE = fmt.Sprintf("The file %s could not be found.", WEBSOCKET_CONFIG_FILE_PATH)
+
+var CURRENT_DIRECTORY_ERROR_MESSAGE = "Error currentDirectory: The current directory path was not retrieved"

@@ -12,10 +12,15 @@ var deployCmd = &cobra.Command{
 	Short: "Handles Serverless Deployment",
 	Long: `This command will run serverless deploy`,
 	Run: func(cmd *cobra.Command, args []string) {
-		configFile := ReadFile(WEBSOCKET_CONFIG_FILE_PATH)
+		configFile, readFileError := ReadFile(WEBSOCKET_CONFIG_FILE_PATH)
 
 		if len(configFile) == 0 {
 			errorMessage.Println(CONFIG_FILE_NOT_FOUND_MESSAGE)
+			return
+		}
+
+		if readFileError != nil {
+			errorMessage.Println(readFileError)
 			return
 		}
 
@@ -28,7 +33,7 @@ var deployCmd = &cobra.Command{
 
 		currentDirectory, error := os.Getwd()
 		if error != nil {
-			errorMessage.Println("ERROR: The current directory path was not retrieved: %v", error)
+			errorMessage.Println(CURRENT_DIRECTORY_ERROR_MESSAGE, error)
 			return
 		}
 

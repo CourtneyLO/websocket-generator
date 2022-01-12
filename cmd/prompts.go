@@ -23,7 +23,7 @@ func language() string {
 	_, result, err := prompt.Run()
 
 	if err != nil {
-		fmt.Printf("Language prompt failed %v\n, Node will be used as a default", err)
+		errorMessage.Printf("Language prompt failed %v\n, Node will be used as a default", err)
 		return "Node"
 	}
 
@@ -66,7 +66,7 @@ func prompt(reference string) string {
 	result, error := prompt.Run()
 
 	if error != nil {
-		fmt.Printf("Prompt failed %v\n", error)
+		errorMessage.Printf("Error: Prompt failed %v\n", error)
 		return ""
 	}
 
@@ -91,7 +91,7 @@ func prompt(reference string) string {
 	if (reference == "InfrastructureFilePath" || reference == "WebsocketFilePath") {
 		currentDirectory, error := os.Getwd()
 		if error != nil {
-			fmt.Println(error)
+			errorMessage.Println("Error:", error)
 		}
 
 		destinationFilePath := filepath.Join(currentDirectory, answer)
@@ -137,7 +137,7 @@ func yesNo(label string) bool {
 	_, result, err := prompt.Run()
 
 	if err != nil {
-		fmt.Printf("Yes No prompt failed %v\n. False is returned as the default", err)
+		errorMessage.Printf("Error: Prompt yesNo failed %v\n. False is returned as the default", err)
 		return false
 	}
 

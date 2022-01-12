@@ -12,25 +12,26 @@ import (
 
 	"github.com/iancoleman/strcase"
 )
-func checkIfFileExists(filePath string) bool {
-	_, err := os.Stat(filePath)
+func checkIfFileExists(filePath string) (bool, error) {
+	_, error := os.Stat(filePath)
 
-	if err == nil {
-  	return true
+	if error == nil {
+		return true, nil
 	}
 
-	if strings.Contains(filePath, WEBSOCKET_CONFIG_FILE_PATH) && errors.Is(err, os.ErrNotExist) {
-		fmt.Println("Project does not exist. Try running websocket-generator init")
+	if strings.Contains(filePath, WEBSOCKET_CONFIG_FILE_PATH) && errors.Is(error, os.ErrNotExist) {
+		return false, errors.New("Error checkIfFileExists: Project does not exist. Try running websocket-generator init")
 	}
 
-	return false
+	return false, fmt.Errorf("Error checkIfFileExists: Stat command failed", error)
 }
 
-func ReadFile(fileName string) map[string]interface{} {
-	jsonFile, errorJsonFile := os.Open(fileName)
-	if errorJsonFile != nil {
-		fmt.Println("Open command in ReadFile failed with the following error", errorJsonFile)
+func ReadFile(fileName string) (map[string]interface{}, error) {
+	jsonFile, error := os.Open(fileName)
+	if error != nil {
+		return nil, fmt.Errorf("Error ReadFile: Open command failed with the following error", error)
 	}
+
 	defer jsonFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
@@ -38,10 +39,10 @@ func ReadFile(fileName string) map[string]interface{} {
 	var result map[string]interface{}
 	json.Unmarshal(byteValue, &result)
 
-	return result
+	return result, nil
 }
 
-func WriteJsonFile(fileName string, data map[string]interface{})  {
+func WriteJsonFile(fileName string, data map[string]interface{}) error {
 	converted := make(map[string]interface{}, len(data))
 	for key, value := range data {
 		key = strcase.ToLowerCamel(key)
@@ -52,16 +53,20 @@ func WriteJsonFile(fileName string, data map[string]interface{})  {
 	error := ioutil.WriteFile(fileName, file, 0644)
 
 	if error != nil {
-		fmt.Println("Write to file failed Error:", error)
+		return fmt.Errorf("Error WriteJsonFile: Writing to JSON file failed", error)
 	}
+
+	return nil
 }
 
-func WriteFile(filePath string, data []byte) {
+func WriteFile(filePath string, data []byte) error {
 	error := ioutil.WriteFile(filePath, data, 0644)
 
 	if error != nil {
-		fmt.Println("Write to file failed Error:", error)
+		return fmt.Errorf("Error WriteFile: Writing to file failed", error)
 	}
+
+	return nil
 }
 
 func CopyAndMoveFile(sourceFilePath, destinationFilePath string) error {
@@ -73,8 +78,7 @@ func CopyAndMoveFile(sourceFilePath, destinationFilePath string) error {
 	sourceFile, error = os.Open(sourceFilePath)
 
 	if error != nil {
-		fmt.Println("Open command in CopyAndMoveFile failed")
-		return error
+		return fmt.Errorf("Error CopyAndMoveFile: Open command failed", error)
 	}
 
 	defer sourceFile.Close()
@@ -82,8 +86,7 @@ func CopyAndMoveFile(sourceFilePath, destinationFilePath string) error {
 	destinationFile, error = os.Create(destinationFilePath)
 
 	if error != nil {
-		fmt.Println("Create command in CopyAndMoveFile failed")
-		return error
+		return fmt.Errorf("Error CopyAndMoveFile: Create command failed", error)
 	}
 
 	defer destinationFile.Close()
@@ -91,15 +94,13 @@ func CopyAndMoveFile(sourceFilePath, destinationFilePath string) error {
 	_, error = io.Copy(destinationFile, sourceFile);
 
 	if error != nil {
-		fmt.Println("Copy command in CopyAndMoveFile failed")
-		return error
+		return fmt.Errorf("Error CopyAndMoveFile: Copy command failed", error)
 	}
 
 	sourceFileInfo, error = os.Stat(sourceFilePath)
 
 	if error != nil {
-		fmt.Println("Stat command in CopyAndMoveFile failed")
-		return error
+		return fmt.Errorf("Error CopyAndMoveFile: Stat command failed", error)
 	}
 
 	return os.Chmod(destinationFilePath, sourceFileInfo.Mode())
@@ -113,22 +114,19 @@ func CopyAndMoveFolder(sourceFilePath string, destinationFilePath string) error 
 	sourceFileInfo, error = os.Stat(sourceFilePath)
 
 	if error != nil {
-		fmt.Println("Stat command in CopyAndMoveFolder failed")
-		return error
+		return fmt.Errorf("Error CopyAndMoveFolder: Stat command failed", error)
 	}
 
 	error = os.MkdirAll(destinationFilePath, sourceFileInfo.Mode())
 
 	if error != nil {
-		fmt.Println("MkdirAll command in CopyAndMoveFolder failed")
-		return error
+		return fmt.Errorf("Error CopyAndMoveFile: MkdirAll command failed", error)
 	}
 
 	fileDirectories, error = ioutil.ReadDir(sourceFilePath)
 
 	if error != nil {
-		fmt.Println("ReadDir command in CopyAndMoveFolder failed")
-		return error
+		return fmt.Errorf("Error CopyAndMoveFile: ReadDir command failed", error)
 	}
 
 	for _, fileDirectory := range fileDirectories {
@@ -138,14 +136,12 @@ func CopyAndMoveFolder(sourceFilePath string, destinationFilePath string) error 
 		if fileDirectory.IsDir() {
 			error = CopyAndMoveFolder(fullSourceFilePath, destinationFilePath)
 			if error != nil {
-				fmt.Println("CopyAndMoveFolder failed")
-				return error
+				return fmt.Errorf("Error CopyAndMoveFolder: CopyAndMoveFolder command failed", error)
 			}
 		} else {
 			error = CopyAndMoveFile(fullSourceFilePath, destinationFilePath)
 			if error != nil {
-				fmt.Println("CopyAndMoveFile failed")
-				return error
+				return fmt.Errorf("Error CopyAndMoveFile: CopyAndMoveFolder command failed", error)
 			}
 		}
 	}

@@ -32,7 +32,7 @@ func terraformExecCommand(action string, configFile map[string]interface{}, curr
 	infrastructureFilePath := configFile["infrastructureFilePath"]
 
 	if infrastructureFilePath == nil {
-		errorMessage.Println("ERROR: Infrastructure file path could not be found")
+		errorMessage.Println("Error: Infrastructure file path could not be found")
 		return
 	}
 

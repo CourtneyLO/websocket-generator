@@ -20,7 +20,7 @@ exports.handler = async function(event, context, callback) {
       body: "Disconnected"
     };
   } catch (error) {
-    console.error('ERROR', error);
+    console.error('Error', error);
     return {
       statusCode: 500,
       body: "Failed to disconnect: " + JSON.stringify(error),
