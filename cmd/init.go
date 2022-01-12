@@ -50,8 +50,6 @@ func init() {
 }
 
 func constructInfrastructureDirectory(websocketConfig WebsocketConfig, currentDirectory string, websocketGeneratorSrcLocation string)  {
-
-
 	// This is hard coded because this value will not changed in the near future.
 	// Work  to make this dynamic will be done later
 	choosenIaC := "terraform"
