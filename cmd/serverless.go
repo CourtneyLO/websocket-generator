@@ -21,7 +21,7 @@ func init() {
 	rootCmd.AddCommand(serverlessCmd)
 }
 
-func serverlessExecCommand(action string, configFile map[string]interface{}, currentDirectory string, environment string) {
+func executeCommand(commandType string, configFile map[string]interface{}, currentDirectory string, environment string, action string)  {
 	websocketFilePath := configFile["websocketFilePath"]
 
 	if websocketFilePath == nil {
@@ -31,40 +31,41 @@ func serverlessExecCommand(action string, configFile map[string]interface{}, cur
 
 	directory := fmt.Sprintf("%s%v", currentDirectory, websocketFilePath)
 
-	command := exec.Command("sls", action, "--stage", environment)
+	command := getExecuteCommand(commandType, action, environment)
 	command.Dir = directory
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
 	command.Run()
+}
+
+func serverlessExecCommand(configFile map[string]interface{}, currentDirectory string, environment string, action string) {
+	executeCommand("serverless", configFile, currentDirectory, environment, action)
 }
 
 func npmInstallExecCommand(configFile map[string]interface{}, currentDirectory string, environment string) {
-	websocketFilePath := configFile["websocketFilePath"]
-
-	if websocketFilePath == nil {
-		errorMessage.Println("ERROR: WebSocket file path could not be found")
-		return
-	}
-
-	directory := fmt.Sprintf("%s%v", currentDirectory, websocketFilePath)
-
-	command := exec.Command("npm", "install")
-	command.Dir = directory
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	command.Stdin = os.Stdin
-	command.Run()
+	executeCommand("npm", configFile, currentDirectory, environment, "")
 }
 
 func DeployServerless(configFile map[string]interface{}, currentDirectory, environment string){
-	serverlessExecCommand("deploy", configFile, currentDirectory, environment)
+	serverlessExecCommand(configFile, currentDirectory, environment, "deploy")
 }
 
 func RemoveServerless(configFile map[string]interface{}, currentDirectory, environment string) {
-	serverlessExecCommand("remove", configFile, currentDirectory, environment)
+	serverlessExecCommand(configFile, currentDirectory, environment, "remove")
 }
 
 func InstallNodePackages(configFile map[string]interface{}, currentDirectory, environment string)  {
 	npmInstallExecCommand(configFile, currentDirectory, environment)
+}
+
+func getExecuteCommand(commandType string, action string, environment string) *exec.Cmd {
+	switch commandType {
+	case "serverless":
+		return exec.Command("sls", action, "--stage", environment)
+	case "npm":
+		return exec.Command("npm", "install")
+	}
+
+	return exec.Command("sls", action, "--stage", environment);
 }
