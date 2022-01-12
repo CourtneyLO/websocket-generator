@@ -2,9 +2,6 @@ service: websocket-generator
 
 frameworkVersion: '2 || 3'
 
-plugins:
-  - serverless-disable-functions
-
 provider:
   name: aws
   runtime: nodejs12.x
