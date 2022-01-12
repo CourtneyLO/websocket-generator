@@ -5,5 +5,5 @@ resource "aws_secretsmanager_secret" "authorization_secret_websocket_key" {
 
 resource "aws_secretsmanager_secret_version" "authorization_secret_websocket_version" {
   secret_id     = aws_secretsmanager_secret.authorization_secret_websocket_key.id
-  secret_string = jsonencode(var.WEBSOCKET_AUTHORIZATION_SECRET_VALUE)
+  secret_string = var.WEBSOCKET_AUTHORIZATION_SECRET_VALUE
 }
