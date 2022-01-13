@@ -1,7 +1,6 @@
 package cmd
 
 type EnvironmentData struct {
-	Environment               string `json:"environment"`
 	AwsAccountId              string `json:"awsAccountId"`
 }
 

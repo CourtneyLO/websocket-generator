@@ -5,7 +5,6 @@ func environmentQuestions(projectName string, environmentConfig map[string]Envir
 	awsAccountId := requiredPrompt("AWSAccountID")
 
 	environmentData := EnvironmentData {
-		Environment: choosenEnvironment,
 		AwsAccountId: awsAccountId,
 	}
 
