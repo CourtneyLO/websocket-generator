@@ -23,7 +23,11 @@ func checkIfFileExists(filePath string) (bool, error) {
 		return false, errors.New("Error checkIfFileExists: Project does not exist. Try running websocket-generator init")
 	}
 
-	return false, fmt.Errorf("Error checkIfFileExists: Stat command failed", error)
+	if errors.Is(error, os.ErrNotExist) {
+		return false, nil
+	}
+
+	return false, error
 }
 
 func ReadFile(fileName string) (map[string]interface{}, error) {
