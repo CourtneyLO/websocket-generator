@@ -31,7 +31,6 @@ describe('Disconnect Handler', () => {
     expect(mockDocumentClientReturnValue.delete).toBeCalledWith(mockedDeleteParams);
   });
 
-
   test('the response statusCode is 200 and the body returns a message when connection ID has been deleted from the database', async () => {
     const response = await disconnectHandler.handler(event);
     expect(response.statusCode).toBe(200);
