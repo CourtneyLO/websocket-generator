@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 
-const { AUTHORIZATION_SECRET_NAME, AWS_REGION_VALUE } = process.env
+const { AUTHORIZATION_SECRET_NAME, AWS_REGION_VALUE, AUTHORIZATION_KEY } = process.env
 
 const secretsManagerClient = new AWS.SecretsManager({ region: AWS_REGION_VALUE });
 
@@ -36,7 +36,7 @@ exports.handler = async (event, context, callback) => {
   const queryStringParameters = event.queryStringParameters;
   const secret = await getSecretValue();
 
-  if (queryStringParameters[`${process.env.AUTHORIZATION_KEY}`] === secret) {
+  if (queryStringParameters[`${AUTHORIZATION_KEY}`] === secret) {
     console.log("Access Granted");
     callback(null, generateAllowPolicy(event.methodArn));
   } else {

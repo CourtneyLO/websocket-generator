@@ -48,7 +48,7 @@ functions:
             name: authorization
             identitySource: 'route.request.querystring.${self:custom.authorizationKey}'
     environment:
-      WEBSOCKET_TABLE_NAME: ${self:custom.dynamodbTableName}
+      WEBSOCKET_MANAGER_TABLE_NAME: ${self:custom.dynamodbTableName}
   disconnect:
     name: ${self:custom.projectName}-${self:provider.stage}-Disconnect
     role: ${cf:${self:custom.terraformOutputs}.IAMRoleArnDisconnectLambda}
@@ -57,7 +57,7 @@ functions:
       - websocket:
           route: $disconnect
     environment:
-      WEBSOCKET_TABLE_NAME: ${self:custom.dynamodbTableName}
+      WEBSOCKET_MANAGER_TABLE_NAME: ${self:custom.dynamodbTableName}
   default:
     name: ${self:custom.projectName}-${self:provider.stage}-Default
     role: ${cf:${self:custom.terraformOutputs}.IAMRoleArnDefaultLambda}

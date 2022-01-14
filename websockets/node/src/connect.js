@@ -1,6 +1,6 @@
 const DynamoDB = require('aws-sdk/clients/dynamodb');
 
-const WEBSOCKET_MANAGER_TABLE_NAME = process.env.WEBSOCKET_TABLE_NAME;
+const { WEBSOCKET_MANAGER_TABLE_NAME } = process.env;
 
 const scanDBForDevice = async (db, deviceType) => {
   try {

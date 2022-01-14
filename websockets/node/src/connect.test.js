@@ -1,5 +1,5 @@
 const tableName = 'example_websocket_manager'
-process.env.WEBSOCKET_TABLE_NAME = tableName;
+process.env.WEBSOCKET_MANAGER_TABLE_NAME = tableName;
 
 require('./test-helpers'); // Comment out if you want to see the console.logs in the tests
 const connectHandler = require('./connect');
