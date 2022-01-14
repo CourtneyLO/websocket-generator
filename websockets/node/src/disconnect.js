@@ -4,11 +4,12 @@ const { WEBSOCKET_MANAGER_TABLE_NAME } = process.env;
 
 exports.handler = async function(event, context, callback) {
   console.log('Disconnect Handler');
+  const connectionId = event.requestContext.connectionId;
 
   const db = new DynamoDB.DocumentClient();
   const deleteParams = {
     TableName: WEBSOCKET_MANAGER_TABLE_NAME,
-    Key: { connectionId: event.requestContext.connectionId }
+    Key: { connectionId }
   };
 
   try {
