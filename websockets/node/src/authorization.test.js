@@ -1,9 +1,8 @@
-const autorizationSecretName = 'example_secret';
 const awsRegion = 'eu-west-2';
-const authorizationKey = 'authorization';
-
 process.env.AWS_REGION_VALUE = awsRegion;
+const authorizationKey = 'authorization';
 process.env.AUTHORIZATION_KEY = authorizationKey;
+const autorizationSecretName = 'example_secret';
 process.env.AUTHORIZATION_SECRET_NAME = autorizationSecretName;
 
 const secretString = '123';
@@ -18,9 +17,7 @@ const mockAWS = { SecretsManager: jest.fn(() => mockSecretManagerClient) };
 require('./test-helpers'); // Comment out if you want to see the console.logs in the tests
 const authorizationHandler = require('./authorization');
 
-jest.mock('aws-sdk', () => {
-  return mockAWS
-});
+jest.mock('aws-sdk', () => { return mockAWS });
 
 describe('Authorization Handler', () => {
   const event = { queryStringParameters: { authorization: '123' }, methodArn: 'arn' };
@@ -48,7 +45,7 @@ describe('Authorization Handler', () => {
     expect(mockSecretManagerClient.getSecretValue).toBeCalledWith(mockedSecretParams);
   });
 
-  test('calls a callback with a policy containing pricipalId and a policyDocument if the authoriaztion value from the user matches the secret in secretManager', async () => {
+  test('callback is called with a policy object containing pricipalId and a policyDocument if the authoriaztion value from the user matches the secret in secretManager', async () => {
     const mockPolicy = {
       principalId: 'UserGrantedAccess',
       policyDocument: {
@@ -68,7 +65,7 @@ describe('Authorization Handler', () => {
     expect(callback).toBeCalledWith(null, mockPolicy);
   });
 
-  test('calls a callback Unauthorized string if the authoriaztion value from the user DOES NOT match the secret in secretManager', async () => {
+  test('callback is called with an Unauthorized string if the authoriaztion value from the user DOES NOT match the secret in secretManager', async () => {
     const event = { queryStringParameters: { authorization: '000' } };
 
     await authorizationHandler.handler(event, context, callback);
@@ -76,7 +73,7 @@ describe('Authorization Handler', () => {
     expect(callback).toBeCalledWith("Unauthorized");
   });
 
-  test('calls a callback Unauthorized string if the authoriaztion key from the user DOES NOT match the authoriaztion key specified in the configuration file', async () => {
+  test('callback is called with an Unauthorized string if the authoriaztion key from the url DOES NOT match the authoriaztion key specified in the configuration file', async () => {
     const event = { queryStringParameters: { auth: '123' } };
 
     await authorizationHandler.handler(event, context, callback);

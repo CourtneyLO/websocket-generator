@@ -37,10 +37,10 @@ exports.handler = async (event, context, callback) => {
   const secret = await getSecretValue();
 
   if (queryStringParameters[`${AUTHORIZATION_KEY}`] === secret) {
-    console.log("Access Granted");
+    console.log("Success: Access Granted");
     callback(null, generateAllowPolicy(event.methodArn));
   } else {
-    console.log("Unauthorized");
+    console.error("Error: Unauthorized");
     callback("Unauthorized");
   }
 };

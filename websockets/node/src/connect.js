@@ -16,9 +16,10 @@ const scanDBForDevice = async (db, deviceType) => {
     };
 
     const connectionsByDevice = await db.scan(scanParams).promise();
+    console.log(`Success: Items ${connectionsByDevice.Items} were retrieved from the database`);
     return connectionsByDevice.Items;
   } catch (error) {
-    console.error(`Failed to scan database for existing device types: ${deviceType}`, error);
+    console.error(`Error: Failed to scan database for existing device types: ${deviceType}`, error);
     return [];
   }
 };
@@ -28,15 +29,16 @@ const deleteExistingRowsWithDeviceType = async (db, items, deviceType) => {
    Promise.all(items.map(async ({ connectionId }) => {
       const deleteParams = {
         TableName: WEBSOCKET_MANAGER_TABLE_NAME,
-        Key: { connectionId: connectionId },
+        Key: { connectionId },
       };
 
       await db.delete(deleteParams).promise();
+      console.log(`Success: ConnectionId ${connectionId} was deleted from the database`);
       return;
     }));
     return;
   } catch (error) {
-    console.error(`Failed to delete ${items.length} rows from the database for existing device types: ${deviceType}`, error);
+    console.error(`Error: Failed to delete ${items.length} rows from the database for existing device types: ${deviceType}`, error);
   }
 };
 
@@ -55,10 +57,10 @@ const addNewDeviceConnectionToDB = async (db, connectionId, deviceType) => {
     }
 
     await db.put(putParams).promise();
-    console.log(`New connectionID ${connectionId} and device ${deviceType} have been added to the database`);
+    console.log(`Success: New connectionID ${connectionId} and device ${deviceType} have been added to the database`);
     return;
   } catch (error) {
-    console.error(`Failed to add connectionId ${connectionId} and device ${deviceType} to the database`, error);
+    console.error(`Error: Failed to add connectionId ${connectionId} and device ${deviceType} to the database`, error);
     return error;
   }
 };
@@ -69,7 +71,7 @@ exports.handler = async function(event, context, callback) {
   const deviceType = event.queryStringParameters && event.queryStringParameters.deviceType;
 
   if (!deviceType) {
-    console.log('No deviceType was given as a query string parameter');
+    console.log('Info: No deviceType was given as a query string parameter');
   }
 
   const db = new DynamoDB.DocumentClient();
@@ -82,8 +84,10 @@ exports.handler = async function(event, context, callback) {
   const error = await addNewDeviceConnectionToDB(db, connectionId, deviceType);
 
   if (error) {
-    return { statusCode: 500, body: "Failed to connect: " + JSON.stringify(error) };
+    console.error(`Error: Failed to connect with connectionId ${connectionId}`, error)
+    return { statusCode: 500, body: `Failed to connect with connectionId ${connectionId}` };
   }
 
-  return { statusCode: 200, body: `Connection made with the connection ID of ${connectionId}` };
+  console.log(`Success: Connection made with the connection ID of ${connectionId}`);
+  return { statusCode: 200, body: { connectionId } };
 };
