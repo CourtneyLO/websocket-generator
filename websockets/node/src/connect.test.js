@@ -89,24 +89,5 @@ describe('Connect Handler', () => {
       expect(mockDocumentClientReturnValue.put).toBeCalledTimes(1);
       expect(mockDocumentClientReturnValue.put).toBeCalledWith(mockedPutParams);
     });
-
-    test('the response statusCode is 200 when connection ID has been deleted from the database', async () => {
-      const response = await connectHandler.handler(event);
-      expect(response.statusCode).toBe(200);
-    });
-
-    test('the response body returns the connectionId when the ID has been deleted from the database', async () => {
-      const response = await connectHandler.handler(event);
-      expect(response.body.connectionId).toBe('1234');
-    });
-  });
-
-  describe('Error', () => {
-    test('the response statusCode is 500 and the body is a error message when an error occurs deleting a connection ID from the database', async () => {
-      mockPromiseReturnValue.promise = jest.fn(() => Promise.reject("Something went wrong!"));
-      const response = await connectHandler.handler(event);
-      expect(response.statusCode).toBe(500);
-      expect(response.body).toBe(`Failed to connect with connectionId ${connectionId}`);
-    });
   });
 });
