@@ -14,7 +14,8 @@ const mockSecretManagerClient = {
 };
 const mockAWS = { SecretsManager: jest.fn(() => mockSecretManagerClient) };
 
-require('./test-helpers'); // Comment out if you want to see the console.logs in the tests
+ // Comment out the line below if you want to see the console.logs in the tests
+require('./test-helpers/silence-console-logs');
 const authorizationHandler = require('./authorization');
 
 jest.mock('aws-sdk', () => { return mockAWS });

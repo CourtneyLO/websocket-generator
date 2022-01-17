@@ -1,7 +1,8 @@
 const tableName = 'example_websocket_manager'
 process.env.WEBSOCKET_MANAGER_TABLE_NAME = tableName;
 
-require('./test-helpers'); // Comment out if you want to see the console.logs in the tests
+// Comment out the line below if you want to see the console.logs in the tests
+require('./test-helpers/silence-console-logs');
 const disconnectHandler = require('./disconnect');
 
 const mockDeleteReturnValue = { promise: jest.fn() };

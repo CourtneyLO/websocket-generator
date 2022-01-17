@@ -3,7 +3,8 @@ process.env.WEBSOCKET_MANAGER_TABLE_NAME = tableName;
 const websocketURL = 'https://example.com'
 process.env.WEBSOCKET_URL = websocketURL;
 
-require('./test-helpers'); // Comment out if you want to see the console.logs in the tests
+// Comment out the line below if you want to see the console.logs in the tests
+require('./test-helpers/silence-console-logs');
 const defaultHandler = require('./default');
 
 const deviceType = 'computer';
