@@ -85,7 +85,9 @@ exports.handler = async function(event, context, callback) {
 
   if (error) {
     console.error(`Error: Failed to connect with connectionId ${connectionId}`, error)
+    return { statusCode: 500, body: `Failed to connect with connectionId ${connectionId}` };
   }
 
   console.log(`Success: Connection made with the connection ID of ${connectionId}`);
+  return { statusCode: 200, body: { connectionId } };
 };

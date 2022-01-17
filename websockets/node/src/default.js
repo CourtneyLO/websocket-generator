@@ -14,7 +14,7 @@ const deleteRowByConnectionId = async (connectionId, db) => {
 
     console.log(`Success: ConnectionId ${connectionId} has been removed from the database`);
     await db.delete(deleteParams).promise();
-    return STALE_CONNECTION
+    return STALE_CONNECTION;
   } catch (error) {
     console.error(`Error: ConnectionId ${connectionId} has failed to be removed from the database`);
     throw error;

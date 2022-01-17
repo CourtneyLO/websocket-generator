@@ -31,4 +31,17 @@ describe('Disconnect Handler', () => {
     expect(mockDocumentClientReturnValue.delete).toBeCalledTimes(1);
     expect(mockDocumentClientReturnValue.delete).toBeCalledWith(mockedDeleteParams);
   });
+
+  test('the response statusCode is 200 and the body returns a message when connection ID has been deleted from the database', async () => {
+    const response = await disconnectHandler.handler(event);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBe("Disconnected");
+  });
+
+  test('the response statusCode is 500 and the body is an error message when a connentionId fails to be deleted from the database', async () => {
+    mockDeleteReturnValue.promise = jest.fn(() => Promise.reject("Something went wrong!"));
+    const response = await disconnectHandler.handler(event);
+    expect(response.statusCode).toBe(500);
+    expect(response.body).toBe("Failed to disconnect: \"Something went wrong!\"");
+  });
 });
