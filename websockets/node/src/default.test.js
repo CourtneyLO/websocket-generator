@@ -6,9 +6,10 @@ process.env.WEBSOCKET_URL = websocketURL;
 require('./test-helpers'); // Comment out if you want to see the console.logs in the tests
 const defaultHandler = require('./default');
 
+const deviceType = 'computer';
 const connectionId = '1234';
 const mockScanPromiseValue = { promise: jest.fn().mockReturnValue({
-  Items: [{ connectionId }]
+  Items: [{ connectionId, deviceType }]
 }) };
 const mockDeletePromiseValue = { promise: jest.fn() }
 const mockDocumentClientReturnValue = {
@@ -94,14 +95,62 @@ describe('Default Lambda', () => {
       test('the response has a statusCode of 200 and there is a message in the body', async () => {
         const response = await defaultHandler.handler(event);
         expect(response.statusCode).toBe(200);
-        expect(response.body).toBe("Message sent!");
+        expect(response.body).toEqual({
+          activeConnections: [{
+            connectionId: '1234',
+            deviceType: undefined,
+            response: "Message sent to connection"
+          }],
+          message: 'Hello World',
+          deletedConnections: []
+        });
+      });
+
+      test('response show deleted and active connectionIds with the message sent', async () => {
+        mockScanPromiseValue.promise = jest.fn().mockReturnValue({
+          Items: [
+            { connectionId, deviceType },
+            { connectionId: '456', deviceType: 'tablet' },
+            { connectionId: '789', deviceType: 'mobile' }
+          ]
+        });
+        mockDeletePromiseValue.promise = jest.fn();
+        mockPromise.promise = jest.fn()
+          .mockReturnValueOnce(Promise.resolve({}))
+          .mockReturnValueOnce(Promise.reject({ statusCode: 410, stack: 'Stale connection' }))
+          .mockReturnValueOnce(Promise.resolve({}))
+
+        const response = await defaultHandler.handler(event);
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({
+          activeConnections: [
+            {
+              connectionId: '1234',
+              deviceType: 'computer',
+              response: 'Message sent to connection'
+            },
+            {
+              connectionId: '789',
+              deviceType: 'mobile',
+              response: 'Message sent to connection'
+            }
+          ],
+          deletedConnections: [
+            {
+              connectionId: '456',
+              deviceType: 'tablet',
+              response: 'Deleted stale ConnectionId'
+            }
+          ],
+          message: 'Hello World'
+        });
       });
     });
 
     describe('Error', () => {
       describe('response statusCode is 500 and the body contains an error message', () => {
         test('a db.scan functionality error', async () => {
-          mockScanPromiseValue.promise = jest.fn(() => Promise.reject({ stack: 'Something went wrong with db.scan!' }));
+          mockScanPromiseValue.promise = jest.fn().mockReturnValueOnce(Promise.reject({ stack: 'Something went wrong with db.scan!' }));
           response = await defaultHandler.handler(event);
           expect(response.statusCode).toBe(500);
           expect(response.body).toBe('Something went wrong with db.scan!');
@@ -115,18 +164,10 @@ describe('Default Lambda', () => {
         });
 
         test('a db.delete functionality error', async () => {
-          mockDeletePromiseValue.promise = jest.fn(() => Promise.reject({ stack: 'Something went wrong with db.delete!' }));
+          mockDeletePromiseValue.promise = jest.fn().mockReturnValueOnce(() => Promise.reject({ stack: 'Something went wrong with db.delete!' }))
           response = await defaultHandler.handler(event);
           expect(response.statusCode).toBe(500);
           expect(response.body).toBe('Something went wrong with postToConnection!');
-        });
-
-        test('a 410 postToConnection error', async () => {
-          mockDeletePromiseValue.promise = jest.fn();
-          mockPromise.promise = jest.fn(() => Promise.reject({ statusCode: 410, stack: 'Stale connection' }));
-          response = await defaultHandler.handler(event);
-          expect(response.statusCode).toBe(500);
-          expect(response.body).toBe('Stale connection');
         });
       });
 
