@@ -93,10 +93,10 @@ describe('Default Lambda', () => {
         });
       });
 
-      test('the response has a statusCode of 200 and there is a message in the body', async () => {
+      test('the response has a statusCode of 200 and a body containing a single active connection, no deleted connections and the message that was sent to the client', async () => {
         const response = await defaultHandler.handler(event);
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({
+        expect(JSON.parse(response.body)).toEqual({
           activeConnections: [{
             connectionId: '1234',
             deviceType: undefined,
@@ -107,7 +107,7 @@ describe('Default Lambda', () => {
         });
       });
 
-      test('response show deleted and active connectionIds with the message sent', async () => {
+      test('the response has a single deleted connection, 2 active connections and the message that was sent to the clients', async () => {
         mockScanPromiseValue.promise = jest.fn().mockReturnValue({
           Items: [
             { connectionId, deviceType },
@@ -123,7 +123,7 @@ describe('Default Lambda', () => {
 
         const response = await defaultHandler.handler(event);
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({
+        expect(JSON.parse(response.body)).toEqual({
           activeConnections: [
             {
               connectionId: '1234',

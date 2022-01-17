@@ -89,5 +89,5 @@ exports.handler = async function(event, context, callback) {
   }
 
   console.log(`Success: Connection made with the connection ID of ${connectionId}`);
-  return { statusCode: 200, body: { connectionId } };
+  return { statusCode: 200, body: JSON.stringify({ connectionId }) };
 };

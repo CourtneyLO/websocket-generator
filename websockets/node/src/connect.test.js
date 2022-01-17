@@ -98,7 +98,7 @@ describe('Connect Handler', () => {
 
     test('the response body returns the connectionId when the ID has been deleted from the database', async () => {
       const response = await connectHandler.handler(event);
-      expect(response.body.connectionId).toBe('1234');
+      expect(JSON.parse(response.body)).toEqual({ connectionId });
     });
   });
 

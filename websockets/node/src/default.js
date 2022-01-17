@@ -66,7 +66,7 @@ exports.handler = async function(event) {
     const deletedConnections = postCalls.filter(({ response }) => response === STALE_CONNECTION);
 
     console.log('Success: Message sent!', { activeConnections, deletedConnections, message: body });
-    return { statusCode: 200, body: { activeConnections, deletedConnections, message: body } };
+    return { statusCode: 200, body: JSON.stringify({ activeConnections, deletedConnections, message: body }) };
   } catch (error) {
     console.error("Error: Message has not been sent", error);
     return { statusCode: 500, body: error.stack };
