@@ -16,7 +16,7 @@ const scanDBForDevice = async (db, deviceType) => {
     };
 
     const connectionsByDevice = await db.scan(scanParams).promise();
-    console.log(`Success: Items ${connectionsByDevice.Items} were retrieved from the database`);
+    console.log(`Success: Items ${JSON.stringify(connectionsByDevice.Items)} were retrieved from the database`);
     return connectionsByDevice.Items;
   } catch (error) {
     console.error(`Error: Failed to scan database for existing device types: ${deviceType}`, error);
