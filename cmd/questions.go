@@ -75,7 +75,7 @@ func GetQuestionDetails(reference string) QuestionDetails {
 		},
 		"AuthorizationKey":  {
 			QuestionLabel: "Authorization Key Name. Default value is authorization",
-			DefaultResponse: "authorization",
+			DefaultResponse: "Authorization",
 			ResponseLabel: "Your Authorization Query Parameter Key is:",
 		},
 		"Environment":  {
