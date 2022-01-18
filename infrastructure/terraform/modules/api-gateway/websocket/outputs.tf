@@ -36,12 +36,20 @@ resource "aws_cloudformation_stack" "outputs" {
             "Value": "${aws_iam_role.default_lambda.arn}"
           }
         },
-        "DynamoDBTableNameWebsocketConnections": {
+        "DynamoDBTableNameWebsocketManager": {
           "Type": "AWS::SSM::Parameter",
           "Properties": {
             "Name": "${var.PROJECT_NAME}-${var.ENVIRONMENT}-dynamodb-table-name-websocket-connections",
             "Type": "String",
             "Value": "${aws_dynamodb_table.dynamodb_websocket_manager.id}"
+          }
+        },
+        "SecretManagerAuthorizationKeyName": {
+          "Type": "AWS::SSM::Parameter",
+          "Properties": {
+            "Name": "${var.PROJECT_NAME}-${var.ENVIRONMENT}-authorization-key-name",
+            "Type": "String",
+            "Value": "${aws_secretsmanager_secret.authorization_secret_websocket_key.name}"
           }
         }
       },
@@ -58,8 +66,11 @@ resource "aws_cloudformation_stack" "outputs" {
         "IAMRoleArnDefaultLambda": {
           "Value": "${aws_iam_role.default_lambda.arn}"
         },
-        "DynamoDBTableNameWebsocketConnections": {
+        "DynamoDBTableNameWebsocketManager": {
           "Value": "${aws_dynamodb_table.dynamodb_websocket_manager.id}"
+        },
+        "SecretManagerAuthorizationKeyName": {
+          "Value": "${aws_secretsmanager_secret.authorization_secret_websocket_key.name}"
         }
       }
     }
