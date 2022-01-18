@@ -114,10 +114,13 @@ resource "aws_iam_role_policy" "default_lambda" {
 
 data "aws_iam_policy_document" "default_lambda" {
   statement {
-    actions = [
-      "dynamodb:Scan"
-    ]
+    actions = ["dynamodb:Scan"]
     resources = [aws_dynamodb_table.dynamodb_websocket_manager.arn]
+  }
+
+  statement {
+    actions   = ["execute-api:ManageConnections"]
+    resources = ["arn:aws:execute-api:${var.AWS_REGION}:${var.AWS_ACCOUNT_ID}:*/${var.ENVIRONMENT}/POST/@connections/*"]
   }
 
   statement {
