@@ -13,9 +13,9 @@ provider:
   apiGateway:
     description: ${self:custom.projectName} websocket API
   environment:
-    DYNAMODB_WEBSOCKET_CONNECTIONS_TABLE_NAME: ${self:custom.terraformOutputs}.DynamoDBTableNameWebsocketConnections
     PROJECT_NAME: ${self:custom.projectName}
     ENVIRONMENT: ${self:provider.stage}
+    WEBSOCKET_ID: !Ref "WebsocketsApi"
   logs:
     websocket: true
 
@@ -24,9 +24,9 @@ custom:
   projectName: ${file(./config.js):projectName}
   awsAccountId: ${file(./config.js):${self:provider.stage}.awsAccountId}
   authorizationKey: ${file(./config.js):authorizationKey}
-  authorizationSecretName: ${self:custom.projectName}-${self:provider.stage}-websocket-authorization-key
   terraformOutputs: ${self:custom.projectName}-${self:provider.stage}-terraform-outputs
-  dynamodbTableName: ${self:custom.projectName}-${self:provider.stage}-websocket-manager
+  websocket_id: !Ref "WebsocketsApi"
+  dynamodbTableName: ${cf:${self:custom.terraformOutputs}.DynamoDBTableNameWebsocketConnections}
 
 functions:
   authorization:
@@ -34,7 +34,7 @@ functions:
     role: ${cf:${self:custom.terraformOutputs}.IAMRoleArnAuthorizerLambda}
     handler: src/authorization.handler
     environment:
-      AUTHORIZATION_SECRET_NAME: ${self:custom.authorizationSecretName}
+      AUTHORIZATION_SECRET_NAME: ${cf:${self:custom.terraformOutputs}.SecretManagerAuthorizationKeyName}
       AUTHORIZATION_KEY: ${self:custom.authorizationKey}
       AWS_REGION_VALUE: ${self:custom.region}
   connect:
@@ -66,3 +66,6 @@ functions:
       - websocket:
           route: $default
           routeResponseSelectionExpression: $default
+    environment:
+      WEBSOCKET_MANAGER_TABLE_NAME: ${self:custom.dynamodbTableName}
+      WEBSOCKET_URL: !Join ['', ['https://', "${self:custom.websocket_id}", '.execute-api.', "${self:provider.region}", '.amazonaws.com/', "${self:provider.stage}/"]]
