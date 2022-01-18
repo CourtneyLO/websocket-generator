@@ -115,7 +115,7 @@ func constructInfrastructureDirectory(websocketConfig WebsocketConfig, currentDi
 }
 
 func constructServerlessDirectory(websocketConfig WebsocketConfig, currentDirectory string, websocketGeneratorSrcLocation string)  {
-	sourceFileWebSockets := websocketGeneratorSrcLocation + "websockets/" + strings.ToLower(websocketConfig.Language)
+	sourceFileWebSockets := websocketGeneratorSrcLocation + "api/websockets/" + strings.ToLower(websocketConfig.Language)
 	destinationWebsocketFilePath := currentDirectory + websocketConfig.WebsocketFilePath
 	sourceFileWebSocketsError := CopyAndMoveFolder(sourceFileWebSockets, destinationWebsocketFilePath)
 

@@ -65,7 +65,7 @@ func GetQuestionDetails(reference string) QuestionDetails {
 		},
 		"WebsocketFilePath":  {
 			QuestionLabel: "WebSocket Code Location Path. Default value is <current-directory>/websocket",
-			DefaultResponse: "/websocket",
+			DefaultResponse: "/api/websocket",
 			ResponseLabel: "Your WebSocket Code Location Path:",
 		},
 		"AwsRegion":  {
