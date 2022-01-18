@@ -114,7 +114,7 @@ resource "aws_iam_role_policy" "default_lambda" {
 
 data "aws_iam_policy_document" "default_lambda" {
   statement {
-    actions = ["dynamodb:Scan"]
+    actions = ["dynamodb:Scan", "dynamodb:DeleteItem"]
     resources = [aws_dynamodb_table.dynamodb_websocket_manager.arn]
   }
 
