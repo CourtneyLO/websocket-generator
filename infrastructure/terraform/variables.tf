@@ -15,6 +15,6 @@ variable "AWS_ACCOUNT_ID" {
 }
 
 variable "WEBSOCKET_AUTHORIZATION_SECRET_VALUE" {
-  type = string
+  type      = string
   sensitive = true
 }
