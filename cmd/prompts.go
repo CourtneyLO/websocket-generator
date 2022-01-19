@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"errors"
 
 	"github.com/manifoldco/promptui"
 )
@@ -20,10 +21,15 @@ func language() string {
 		Templates: &templates,
 	}
 
-	_, result, err := prompt.Run()
+	_, result, error := prompt.Run()
 
-	if err != nil {
-		errorMessage.Printf("Language prompt failed %v\n, Node will be used as a default", err)
+	if error != nil {
+		if errors.Is(error, promptui.ErrInterrupt) {
+			goodbyeMessage.Println("Exiting WebSocket Generator, no configuration file has been created. Bye " + goodbyeEmoji)
+			os.Exit(-1)
+		}
+
+		errorMessage.Printf("Language prompt failed %v\n, Node will be used as a default", error)
 		return "Node"
 	}
 
@@ -66,6 +72,11 @@ func prompt(reference string) string {
 	result, error := prompt.Run()
 
 	if error != nil {
+		if errors.Is(error, promptui.ErrInterrupt) {
+			goodbyeMessage.Println("Exiting WebSocket Generator, no configuration file has been created. Bye " + goodbyeEmoji)
+			os.Exit(-1)
+		}
+
 		errorMessage.Printf("Error: Prompt failed %v\n", error)
 		return ""
 	}
@@ -134,10 +145,15 @@ func yesNo(label string) bool {
 		Templates: &templates,
 	}
 
-	_, result, err := prompt.Run()
+	_, result, error := prompt.Run()
 
-	if err != nil {
-		errorMessage.Printf("Error: Prompt yesNo failed %v\n. False is returned as the default", err)
+	if error != nil {
+		if errors.Is(error, promptui.ErrInterrupt) {
+			goodbyeMessage.Println("Exiting WebSocket Generator, no configuration file has been created. Bye " + goodbyeEmoji)
+			os.Exit(-1)
+		}
+
+		errorMessage.Printf("Error: Prompt yesNo failed %v\n. False is returned as the default", error)
 		return false
 	}
 
