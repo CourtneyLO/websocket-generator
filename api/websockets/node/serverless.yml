@@ -26,7 +26,7 @@ custom:
   authorizationKey: ${file(./config.js):authorizationKey}
   terraformOutputs: ${self:custom.projectName}-${self:provider.stage}-terraform-outputs
   websocket_id: !Ref "WebsocketsApi"
-  dynamodbTableName: ${cf:${self:custom.terraformOutputs}.DynamoDBTableNameWebsocketManager}
+  dynamodbTableName: ${cf:${self:custom.terraformOutputs}.DynamoDBTableWebsocketManagerName}
 
 functions:
   authorization:
