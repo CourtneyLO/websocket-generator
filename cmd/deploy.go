@@ -41,6 +41,7 @@ var deployCmd = &cobra.Command{
 
 		InstallNodePackages(configFile, currentDirectory, environment)
 		DeployServerless(configFile, currentDirectory, environment)
+		PrintWebsocketUrl(configFile, environment)
 	},
 }
 

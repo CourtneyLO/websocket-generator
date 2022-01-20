@@ -37,7 +37,7 @@ func checkForValidArguments(action string, args []string, configFile map[string]
 
 	projectNameInArgs := strings.ToLower(args[0])
 	environmentInArgs := strings.ToLower(args[1])
-	projectNameInConfig := strings.ToLower(fmt.Sprintf("%v", configFile["projectName"]))
+	projectNameInConfig := strings.ToLower(fmt.Sprintf("%s", configFile["projectName"]))
 	environmentsInConfig := configFile["environments"]
 
 	acceptedEnvironment := containsElement(environmentsInConfig, environmentInArgs)
