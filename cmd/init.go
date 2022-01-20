@@ -62,9 +62,14 @@ func constructInfrastructureDirectory(websocketConfig WebsocketConfig, currentDi
 
 	destinationInfrastructureFilePath := currentDirectory + websocketConfig.InfrastructureFilePath
 
-	sourceFileInfrastructureError := CopyAndMoveFolder(sourceFileInfrastructure + "/modules", destinationInfrastructureFilePath + "/modules")
-	if sourceFileInfrastructureError != nil {
-		errorMessage.Println("Error: The WebSocket modules folder failed to be copied and move to it's destination", sourceFileInfrastructureError)
+	moduleFileInfrastructureError := CopyAndMoveFolder(sourceFileInfrastructure + "/modules", destinationInfrastructureFilePath + "/modules")
+	if moduleFileInfrastructureError != nil {
+		errorMessage.Println("Error: The WebSocket modules folder failed to be copied and move to it's destination", moduleFileInfrastructureError)
+	}
+
+	gitignoreFileInfrastructureError := CopyAndMoveFile(sourceFileInfrastructure + "/.gitignore", destinationInfrastructureFilePath + "/.gitignore")
+	if gitignoreFileInfrastructureError != nil {
+		errorMessage.Println("Error: The WebSocket .gitignore file failed to be copied and move to it's destination", gitignoreFileInfrastructureError)
 	}
 
 	mainFileExists, fileExistError := checkIfFileExists(destinationInfrastructureFilePath + "/main.tf")
