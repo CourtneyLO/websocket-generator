@@ -23,7 +23,7 @@ const deleteRowByConnectionId = async (connectionId, db) => {
 
 const postToConnectionById = async (connectionId, body, api, db) => {
   try {
-    await api.postToConnection({ ConnectionId: connectionId, Data: JSON.stringify(body) }).promise();
+    await api.postToConnection({ ConnectionId: connectionId, Data: body }).promise();
     console.log(`Success: Message sent to connectionId ${connectionId}`);
     return ACTIVE_CONNECTION;
   } catch (error) {
