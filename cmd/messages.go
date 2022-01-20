@@ -34,6 +34,11 @@ variable "WEBSOCKET_AUTHORIZATION_SECRET_VALUE" {
 	sensitive = true
 }`
 
+const GIT_IGNORE_MESSAGE = `
+*.tfstate*
+.terraform
+`
+
 const UNACCEPTED_ENVIRONMENT_MESSAGE = `
 Environment name does not match any of the environments in the WebSocket generator config file.
 Please try again using one of the environments you set when running websocket-generator %s.
@@ -55,6 +60,10 @@ const websocketGeneratorConfig = require('%s');
 module.exports = websocketGeneratorConfig;
 `
 
-var CONFIG_FILE_NOT_FOUND_MESSAGE = fmt.Sprintf("The file %s could not be found. You must first run websocket-generator init <projectName>.", WEBSOCKET_CONFIG_FILE_PATH)
+var FILE_ALREADY_EXISTS_MESSAGE = `
+It appears you already have a %s file.
+Please add following code to your existing file, if it does not already exist:`
+
+var CONFIG_FILE_NOT_FOUND_MESSAGE = fmt.Sprintf("The file %s could not be found.", WEBSOCKET_CONFIG_FILE_PATH)
 
 var CURRENT_DIRECTORY_ERROR_MESSAGE = "Error currentDirectory: The current directory path was not retrieved"

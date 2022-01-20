@@ -55,79 +55,56 @@ func init() {
 
 func constructInfrastructureDirectory(websocketConfig WebsocketConfig, currentDirectory string, websocketGeneratorSrcLocation string)  {
 	// This is hard coded because this value will not changed in the near future.
-	// Work  to make this dynamic will be done later
+	// Work to make this dynamic will be done later
 	choosenIaC := "terraform"
+	sourceFilePath := websocketGeneratorSrcLocation + "infrastructure/" + choosenIaC
+	destinationFilePath := currentDirectory + websocketConfig.InfrastructureFilePath
 
-	sourceFileInfrastructure := websocketGeneratorSrcLocation + "infrastructure/" + choosenIaC
+	copyFolderToRepo("/modules", sourceFilePath, destinationFilePath)
+	copyFileToRepo("/.gitignore", sourceFilePath, destinationFilePath)
+	copyFileToRepo("/main.tf", sourceFilePath, destinationFilePath)
+	// Checks to see if either vars.tf of variables.tf already exist in user's repo before copong and adding the file
+	copyFileToRepo("/vars.tf", sourceFilePath, destinationFilePath)
+}
 
-	destinationInfrastructureFilePath := currentDirectory + websocketConfig.InfrastructureFilePath
-
-	moduleFileInfrastructureError := CopyAndMoveFolder(sourceFileInfrastructure + "/modules", destinationInfrastructureFilePath + "/modules")
-	if moduleFileInfrastructureError != nil {
-		errorMessage.Println("Error: The WebSocket modules folder failed to be copied and move to it's destination", moduleFileInfrastructureError)
+func copyFolderToRepo(filePath string, sourceFilePath string, destinationFilePath string)  {
+	fileError := CopyAndMoveFolder(sourceFilePath + filePath, destinationFilePath + filePath)
+	if fileError != nil {
+		errorMessage.Println(fmt.Sprintf("Error: The infrastructure WebSocket %s file failed to be copied and move to it's destination", filePath), fileError)
 	}
+}
 
-	gitignoreFileInfrastructureError := CopyAndMoveFile(sourceFileInfrastructure + "/.gitignore", destinationInfrastructureFilePath + "/.gitignore")
-	if gitignoreFileInfrastructureError != nil {
-		errorMessage.Println("Error: The WebSocket .gitignore file failed to be copied and move to it's destination", gitignoreFileInfrastructureError)
-	}
-
-	mainFileExists, fileExistError := checkIfFileExists(destinationInfrastructureFilePath + "/main.tf")
+func copyFileToRepo(filePath string, sourceFilePath string, destinationFilePath string)  {
+	fileExists, fileExistError := checkIfFileExists(destinationFilePath + filePath)
 
 	if fileExistError != nil {
 		errorMessage.Println(fileExistError)
 		return
 	}
 
-	if mainFileExists {
-		fmt.Println("")
-		informationHeading.Println("It appears you already have a main.tf file. Please add following code to your existing file:")
-		informationDetails.Println(WEBSOCKET_MODULE_MESSAGE)
-	} else {
-		sourceFileInfrastructureError := CopyAndMoveFile(sourceFileInfrastructure + "/main.tf", destinationInfrastructureFilePath + "/main.tf")
-		if sourceFileInfrastructureError != nil {
-			errorMessage.Println("Error: The WebSocket main.tf file failed to be copied and move to it's destination", sourceFileInfrastructureError)
-		}
-	}
-
-	variableFileExists, variableFileExistError := checkIfFileExists(destinationInfrastructureFilePath + "/variables.tf")
-
-	if variableFileExistError != nil {
-		errorMessage.Println(variableFileExistError)
+	if !fileExists && filePath == "/vars.tf" {
+		copyFileToRepo("/variables.tf", sourceFilePath, destinationFilePath)
 		return
 	}
 
-	varsFileExists, varsfileExistError := checkIfFileExists(destinationInfrastructureFilePath + "/vars.tf")
-
-	if varsfileExistError != nil {
-		errorMessage.Println(varsfileExistError)
+	if !fileExists {
+		fileCopyError := CopyAndMoveFile(sourceFilePath + filePath, destinationFilePath + filePath)
+		if fileCopyError != nil {
+			errorMessage.Println(fmt.Sprintf("Error: The infrastructure WebSocket %s file failed to be copied and move to it's destination", filePath), fileCopyError)
+		}
 		return
 	}
 
-	variableTypeFileExists := variableFileExists || varsFileExists
-
-	if variableTypeFileExists {
-		fmt.Println("")
-		informationHeading.Println("It appears you already have a variables file. Please add following code to your existing file:")
-		informationDetails.Println(VARIABLES_MESSAGE)
-		fmt.Println("")
-	} else {
-		sourceFileInfrastructureError := CopyAndMoveFile(sourceFileInfrastructure + "/variables.tf", destinationInfrastructureFilePath + "/variables.tf")
-		if sourceFileInfrastructureError != nil {
-			errorMessage.Println("Error: The WebSocket variables.tf file failed to be copied and move to it's destination", sourceFileInfrastructureError)
-		}
-	}
+	fmt.Println("")
+	informationHeading.Println(fmt.Sprintf(FILE_ALREADY_EXISTS_MESSAGE, filePath))
+	informationDetails.Println(getMessage(filePath))
+	fmt.Println("")
 }
 
 func constructServerlessDirectory(websocketConfig WebsocketConfig, currentDirectory string, websocketGeneratorSrcLocation string)  {
-	sourceFileWebSockets := websocketGeneratorSrcLocation + "api/websockets/" + strings.ToLower(websocketConfig.Language)
-	destinationWebsocketFilePath := currentDirectory + websocketConfig.WebsocketFilePath
-	sourceFileWebSocketsError := CopyAndMoveFolder(sourceFileWebSockets, destinationWebsocketFilePath)
-
-	if sourceFileWebSocketsError != nil {
-		errorMessage.Println("Error: The WebSocket folder failed to be copied and move to it's destination", sourceFileWebSocketsError)
-		return
-	}
+	sourceFilePath := websocketGeneratorSrcLocation + "api/websockets/" + strings.ToLower(websocketConfig.Language)
+	destinationFilePath := currentDirectory + websocketConfig.WebsocketFilePath
+	copyFolderToRepo("/", sourceFilePath, destinationFilePath)
 
 	// Contructs config file to prevent Serverless complaining that the confirguration file is not in the same directory as serverless file.
 	constructServerlessConfig(currentDirectory, websocketConfig.WebsocketFilePath)
@@ -160,4 +137,14 @@ func getWebsocketGeneratorSrcLocation() string {
 	}
 
 	return gopath + "/src/" + WEBSOCKET_GENERATOR_PACKAGE
+}
+
+func getMessage(reference string) string {
+	messages := map[string]string{
+		"/main.tf": WEBSOCKET_MODULE_MESSAGE,
+		"/variables.tf": VARIABLES_MESSAGE,
+		"/vars.tf": VARIABLES_MESSAGE,
+		"/.gitignore": GIT_IGNORE_MESSAGE,
+	}
+	return messages[reference]
 }
